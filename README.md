@@ -60,11 +60,12 @@ physics-kb/
 
 ### 環境需求
 
-| 項目 | 最低需求 |
-|------|----------|
+| 項目 | 需求 |
+|------|------|
 | OS | Linux / macOS |
-| RAM | 4GB（僅 agent CLI）、8GB+（含 qmd 向量搜尋） |
+| RAM | 8GB+（qmd embed 需載入 embedding 模型 ~300MB） |
 | Runtime | [Bun](https://bun.sh/) |
+| 搜尋引擎 | [qmd](https://github.com/tobi/qmd) |
 | API Key | [Anthropic API Key](https://console.anthropic.com/) |
 
 ### 安裝
@@ -77,6 +78,12 @@ cd physics-kb
 curl -fsSL https://bun.sh/install | bash
 source ~/.bashrc
 
+# 安裝 qmd 搜尋引擎
+bun install -g github:tobi/qmd
+
+# 建立索引 + 向量嵌入（首次會自動下載 embedding 模型 ~300MB）
+bash scripts/index.sh
+
 # 安裝 agent 依賴
 cd agent
 bun install
@@ -84,18 +91,6 @@ bun install
 # 設定 API key
 cp .env.example .env
 # 編輯 .env，填入 ANTHROPIC_API_KEY
-```
-
-### （選用）安裝 qmd 搜尋引擎
-
-使用 `search` / `vsearch` / `query` 策略時需要 qmd：
-
-```bash
-bun install -g github:tobi/qmd
-
-# 建立索引
-cd ~/path-to/physics-kb
-bash scripts/index.sh
 ```
 
 ### 發問
@@ -133,12 +128,12 @@ MAX_ITERATIONS=5              # Judge 最多迭代輪數
 MAX_CONTEXT_NOTES=20          # context 最多筆記數
 ```
 
-| 策略 | 說明 | 需要 qmd |
+| 策略 | 說明 | 適用場景 |
 |------|------|----------|
-| `grep` | 關鍵字精確匹配，即時，預設 | 否 |
-| `search` | qmd BM25 排序 | 是 |
-| `vsearch` | qmd 向量語意搜尋 | 是（需 `qmd embed`） |
-| `query` | BM25 + 向量 + reranking | 是（CPU-only 很慢） |
+| `grep` | 關鍵字精確匹配，即時，預設 | 日常使用、標籤全量召回 |
+| `search` | qmd BM25 排序 | 需要相關性排序時 |
+| `vsearch` | qmd 向量語意搜尋 | 語意模糊的問題 |
+| `query` | BM25 + 向量 + reranking | 最佳品質（CPU-only 很慢，建議有 GPU） |
 
 ## Model 選擇
 
@@ -170,12 +165,12 @@ claude
 
 ### 更新索引
 
-```bash
-bash scripts/index.sh          # 完整重建
-bash scripts/index.sh --update # 僅更新
-```
+新增筆記後務必重新索引，確保所有搜尋策略都能找到新內容：
 
-> 使用 `grep` 策略不需要 qmd 索引。
+```bash
+bash scripts/index.sh          # 完整重建（含 BM25 + 向量嵌入）
+bash scripts/index.sh --update # 僅更新（較快）
+```
 
 ## 規模化考量
 
