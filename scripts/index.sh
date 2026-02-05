@@ -42,6 +42,14 @@ fi
 echo "Building embeddings..."
 qmd embed
 
+# 重建 agent note index 快取
+AGENT_DIR="$PROJECT_DIR/agent"
+if [ -d "$AGENT_DIR/src" ]; then
+    echo "Rebuilding agent note index cache..."
+    rm -f "$AGENT_DIR/.note-index.json"
+    # Next agent run will auto-rebuild the cache
+fi
+
 echo "Done. Index ready with $NOTE_COUNT notes."
 echo ""
 echo "Test with:"

@@ -1,6 +1,6 @@
 import type { Config } from "./config";
 import type { SearchStrategy } from "./search";
-import { type NoteContent, readNote, buildNoteIndex } from "./notes";
+import { type NoteContent, readNote, buildNoteIndex, resolveLink } from "./notes";
 import * as llm from "./llm";
 
 function log(msg: string) {
@@ -13,9 +13,9 @@ export async function answer(
   search: SearchStrategy
 ): Promise<string> {
   // Build note index for link resolution
-  log("Building note index...");
+  log("Loading note index...");
   const noteIndex = await buildNoteIndex(config.notesPath);
-  log(`Indexed ${noteIndex.size} notes`);
+  log(`Indexed ${noteIndex.size} note titles`);
 
   // 1. Extract keywords
   log("Extracting keywords...");
@@ -48,7 +48,7 @@ export async function answer(
     // Follow suggested links
     let added = 0;
     for (const link of judgment.followLinks) {
-      const path = noteIndex.get(link);
+      const path = resolveLink(noteIndex, link);
       if (path && !context.has(path)) {
         try {
           context.set(path, readNote(path));
