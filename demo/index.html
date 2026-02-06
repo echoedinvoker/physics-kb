@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>物理知識庫 AI 助教</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #232733;
+    --border: #2e3345;
+    --text: #e2e4eb;
+    --text2: #8b8fa3;
+    --accent: #6c8cff;
+    --accent2: #4a6ae5;
+    --green: #4ade80;
+    --yellow: #fbbf24;
+    --red: #f87171;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Header */
+  header {
+    padding: 24px 32px;
+    border-bottom: 1px solid var(--border);
+    text-align: center;
+  }
+  header h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  header h1 span { color: var(--accent); }
+  header p {
+    margin-top: 6px;
+    color: var(--text2);
+    font-size: 0.85rem;
+  }
+
+  /* Main */
+  main {
+    flex: 1;
+    max-width: 800px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 32px 24px 120px;
+  }
+
+  /* Examples */
+  .examples {
+    margin-bottom: 32px;
+  }
+  .examples h3 {
+    font-size: 0.8rem;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+  }
+  .example-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .chip:hover {
+    border-color: var(--accent);
+    background: var(--surface2);
+  }
+
+  /* Conversation */
+  .conversation { display: flex; flex-direction: column; gap: 24px; }
+
+  .msg {
+    display: flex;
+    gap: 12px;
+    animation: fadeIn 0.2s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .msg-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+  }
+  .msg-user .msg-icon { background: var(--accent2); }
+  .msg-agent .msg-icon { background: var(--surface2); border: 1px solid var(--border); }
+
+  .msg-body { flex: 1; min-width: 0; }
+  .msg-user .msg-body {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 0.95rem;
+  }
+
+  /* Thinking */
+  .thinking {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .thinking-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: var(--text2);
+    user-select: none;
+  }
+  .thinking-header:hover { color: var(--text); }
+  .thinking-toggle { transition: transform 0.2s; font-size: 0.7rem; }
+  .thinking.open .thinking-toggle { transform: rotate(90deg); }
+  .thinking-dots {
+    display: inline-flex;
+    gap: 4px;
+    margin-left: auto;
+  }
+  .thinking-dots span {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 1.2s infinite;
+  }
+  .thinking-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .thinking-dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+  .thinking-done .thinking-dots { display: none; }
+  .thinking-done .thinking-header { color: var(--green); }
+
+  .thinking-logs {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+  .thinking.open .thinking-logs { max-height: 600px; overflow-y: auto; }
+  .thinking-logs pre {
+    padding: 0 16px 12px;
+    font-family: "JetBrains Mono", "Fira Code", monospace;
+    font-size: 0.75rem;
+    line-height: 1.6;
+    color: var(--text2);
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+  .log-search { color: var(--yellow); }
+  .log-pass { color: var(--green); }
+  .log-fail { color: var(--red); }
+
+  /* Answer */
+  .answer {
+    line-height: 1.75;
+    font-size: 0.95rem;
+  }
+  .answer h1, .answer h2, .answer h3 {
+    margin: 20px 0 8px;
+    font-weight: 600;
+  }
+  .answer h2 { font-size: 1.15rem; }
+  .answer h3 { font-size: 1rem; }
+  .answer p { margin: 8px 0; }
+  .answer ul, .answer ol { margin: 8px 0 8px 20px; }
+  .answer li { margin: 4px 0; }
+  .answer code {
+    background: var(--surface2);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.85em;
+  }
+  .answer blockquote {
+    border-left: 3px solid var(--accent);
+    padding-left: 16px;
+    color: var(--text2);
+    margin: 12px 0;
+  }
+  .answer table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 12px 0;
+    font-size: 0.85rem;
+  }
+  .answer th, .answer td {
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    text-align: left;
+  }
+  .answer th { background: var(--surface2); font-weight: 600; }
+  .answer strong { color: var(--accent); font-weight: 600; }
+  .answer a.note-link {
+    color: var(--green);
+    text-decoration: none;
+    border-bottom: 1px dashed var(--green);
+    transition: opacity 0.15s;
+  }
+  .answer a.note-link:hover { opacity: 0.8; }
+
+  /* KaTeX blocks */
+  .answer .katex-display { margin: 16px 0; overflow-x: auto; }
+
+  /* Input bar */
+  .input-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    padding: 16px;
+  }
+  .input-wrap {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    gap: 10px;
+  }
+  .input-wrap input {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .input-wrap input:focus { border-color: var(--accent); }
+  .input-wrap input::placeholder { color: var(--text2); }
+  .input-wrap button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    white-space: nowrap;
+  }
+  .input-wrap button:hover { background: var(--accent2); }
+  .input-wrap button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Footer info */
+  .footer-info {
+    text-align: center;
+    margin-top: 8px;
+    font-size: 0.7rem;
+    color: var(--text2);
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1><span>&#x1F52C;</span> 物理知識庫 AI 助教</h1>
+  <p>高中 108 課綱物理 &bull; 307 篇原子化筆記 &bull; Agentic RAG</p>
+</header>
+
+<main>
+  <div class="examples" id="examples">
+    <h3>試試看</h3>
+    <div class="example-chips">
+      <div class="chip" onclick="ask(this.textContent)">光纖為什麼能傳輸訊號？</div>
+      <div class="chip" onclick="ask(this.textContent)">愛因斯坦有哪些重要貢獻？</div>
+      <div class="chip" onclick="ask(this.textContent)">庫侖定律的平方反比是什麼意思？</div>
+      <div class="chip" onclick="ask(this.textContent)">從伽利略到牛頓的力學轉變？</div>
+      <div class="chip" onclick="ask(this.textContent)">雷射的物理原理是什麼？</div>
+    </div>
+  </div>
+
+  <div class="conversation" id="conversation"></div>
+</main>
+
+<div class="input-bar">
+  <div class="input-wrap">
+    <input type="text" id="questionInput" placeholder="輸入你的物理問題..." autocomplete="off"
+           onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();ask()}" />
+    <button id="askBtn" onclick="ask()">發問</button>
+  </div>
+  <div class="footer-info">Haiku 4.5 搜尋 + 生成 &bull; Sonnet 4.5 品質驗證 &bull; qmd + [[連結]] 遍歷</div>
+</div>
+
+<script>
+const conv = document.getElementById('conversation');
+const input = document.getElementById('questionInput');
+const btn = document.getElementById('askBtn');
+let busy = false;
+let questionHistory = [];
+let shownQuestions = []; // Track Q-IDs that have been shown to avoid duplicates
+let noteMap = {}; // title → garden URL
+
+// Load note map on startup
+fetch('/api/note-map').then(r => r.json()).then(m => { noteMap = m; buildSortedNotes(); });
+
+function ask(text) {
+  if (busy) return;
+  const question = (text || input.value).trim();
+  if (!question) return;
+
+  busy = true;
+  btn.disabled = true;
+  input.value = '';
+
+  // Hide examples after first question
+  const ex = document.getElementById('examples');
+  if (ex) ex.style.display = 'none';
+
+  // User message
+  const userMsg = el('div', 'msg msg-user');
+  userMsg.innerHTML = `
+    <div class="msg-icon">Q</div>
+    <div class="msg-body">${esc(question)}</div>
+  `;
+  conv.appendChild(userMsg);
+
+  // Agent message
+  const agentMsg = el('div', 'msg msg-agent');
+  const thinkingEl = el('div', 'thinking open');
+  const logsEl = el('pre', '');
+  thinkingEl.innerHTML = `
+    <div class="thinking-header" onclick="this.parentElement.classList.toggle('open')">
+      <span class="thinking-toggle">&#9654;</span>
+      Agent 思考中
+      <div class="thinking-dots"><span></span><span></span><span></span></div>
+    </div>
+  `;
+  const logsWrap = el('div', 'thinking-logs');
+  logsWrap.appendChild(logsEl);
+  thinkingEl.appendChild(logsWrap);
+
+  const answerEl = el('div', 'answer');
+  const body = el('div', 'msg-body');
+  body.appendChild(thinkingEl);
+  body.appendChild(answerEl);
+  agentMsg.innerHTML = `<div class="msg-icon">A</div>`;
+  agentMsg.appendChild(body);
+  conv.appendChild(agentMsg);
+  scrollDown();
+
+  // SSE
+  fetch('/api/ask', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ question, history: questionHistory, shownQuestions }),
+  }).then(res => {
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    function read() {
+      reader.read().then(({ done, value }) => {
+        if (done) { finish(); return; }
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop();
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const data = line.slice(6);
+          if (data === '[DONE]') { finish(); return; }
+          try {
+            const msg = JSON.parse(data);
+            if (msg.type === 'log') {
+              const colored = colorLog(msg.text);
+              logsEl.innerHTML += colored + '\n';
+              logsWrap.scrollTop = logsWrap.scrollHeight;
+              scrollDown();
+            } else if (msg.type === 'answer') {
+              renderAnswer(answerEl, msg.text);
+              thinkingEl.classList.add('thinking-done');
+              thinkingEl.classList.remove('open');
+              questionHistory.push(question);
+              // Extract Q-IDs from answer to prevent duplicates
+              const qIds = msg.text.match(/Q-[\w\u4e00-\u9fff]+-[\w\u4e00-\u9fff]+-\d+/g) || [];
+              for (const id of qIds) { if (!shownQuestions.includes(id)) shownQuestions.push(id); }
+              scrollDown();
+            } else if (msg.type === 'error') {
+              answerEl.innerHTML = `<p style="color:var(--red)">${esc(msg.text)}</p>`;
+            }
+          } catch {}
+        }
+        read();
+      });
+    }
+    read();
+  }).catch(err => {
+    answerEl.innerHTML = `<p style="color:var(--red)">連線錯誤：${esc(err.message)}</p>`;
+    finish();
+  });
+
+  function finish() {
+    busy = false;
+    btn.disabled = false;
+    input.focus();
+    thinkingEl.classList.add('thinking-done');
+    if (!thinkingEl.classList.contains('open')) return;
+    thinkingEl.classList.remove('open');
+  }
+}
+
+function colorLog(text) {
+  const t = esc(text);
+  if (t.includes('Searching') || t.includes('search')) return `<span class="log-search">${t}</span>`;
+  if (t.includes('PASS') || t.includes('sufficient: true') || t.includes('Sufficient: true')) return `<span class="log-pass">${t}</span>`;
+  if (t.includes('FAIL') || t.includes('sufficient: false') || t.includes('Sufficient: false')) return `<span class="log-fail">${t}</span>`;
+  return t;
+}
+
+function renderAnswer(container, md) {
+  // Render markdown
+  let html = marked.parse(md || '');
+  container.innerHTML = html;
+
+  // Render LaTeX: display math $$...$$
+  container.querySelectorAll('p, li, td, th').forEach(node => {
+    if (!node.innerHTML.includes('$')) return;
+    // Display math
+    node.innerHTML = node.innerHTML.replace(/\$\$([\s\S]*?)\$\$/g, (_, tex) => {
+      try { return katex.renderToString(tex.trim(), { displayMode: true, throwOnError: false }); }
+      catch { return `$$${tex}$$`; }
+    });
+    // Inline math
+    node.innerHTML = node.innerHTML.replace(/\$([^\$\n]+?)\$/g, (_, tex) => {
+      try { return katex.renderToString(tex.trim(), { displayMode: false, throwOnError: false }); }
+      catch { return `$${tex}$`; }
+    });
+  });
+
+  // Linkify note titles → garden URLs
+  linkifyNotes(container);
+}
+
+// Sort titles longest-first to prevent "庫侖定律" from matching inside "庫侖定律公式"
+let sortedNotes = [];
+function buildSortedNotes() {
+  sortedNotes = Object.entries(noteMap).sort((a, b) => b[0].length - a[0].length);
+}
+
+function linkifyNotes(container) {
+  if (!sortedNotes.length) return;
+  container.querySelectorAll('li, p').forEach(node => {
+    // Skip nodes that already have links or KaTeX
+    if (node.querySelector('a, .katex')) return;
+    const text = node.textContent;
+    for (const [title, url] of sortedNotes) {
+      if (title.length < 3) continue; // Skip very short titles to avoid false matches
+      if (text.includes(title)) {
+        const escaped = title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const re = new RegExp(`(?<![">\/])${escaped}(?![<"])`, 'g');
+        node.innerHTML = node.innerHTML.replace(re,
+          `<a href="${url}" target="_blank" class="note-link">${title}</a>`
+        );
+      }
+    }
+  });
+}
+
+function el(tag, cls) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  return e;
+}
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function scrollDown() {
+  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+}
+
+input.focus();
+</script>
+</body>
+</html>

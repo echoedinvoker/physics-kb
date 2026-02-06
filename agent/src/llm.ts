@@ -37,7 +37,11 @@ async function callJSON<T>(
     null,
     text,
   ];
-  return JSON.parse(jsonMatch[1]!.trim()) as T;
+  try {
+    return JSON.parse(jsonMatch[1]!.trim()) as T;
+  } catch {
+    throw new Error(`LLM 回傳非 JSON：${text.slice(0, 200)}`);
+  }
 }
 
 export interface KeywordResult {
@@ -50,11 +54,17 @@ export async function extractKeywords(
 ): Promise<KeywordResult> {
   return callJSON<KeywordResult>(
     `你是物理知識庫搜尋助手。根據使用者的物理問題，拆解出最有效的搜尋關鍵字。
+
+輸入可能包含「（背景：之前的對話依序討論了：...）」前綴，表示對話脈絡。請結合背景和當前問題來判斷使用者想找什麼物理內容。
+
 規則：
-- terms：用於搜尋的中文關鍵字，2-5 個，每個都是獨立的搜尋詞
+- terms：用於 grep 精確匹配搜尋的繁體中文關鍵字，3-6 個
+- 每個關鍵字應為 2-3 個字的短詞（如「光纖」「全反射」「折射」），不要用長複合詞（如「光纖傳輸訊號」「全內反射原理」）
+- 同時包含核心概念詞和相關概念詞，提高召回率
+- 如果當前問題是「給我題目」「再一個」等後續請求，從背景中提取物理主題作為關鍵字
 - tags：可能相關的 topic 標籤（如 topic/optics, topic/mechanics），0-2 個
 - 關鍵字要精確，避免太泛的詞（如「物理」）
-- 回傳 JSON 格式：{ "terms": [...], "tags": [...] }`,
+- 一律回傳 JSON 格式：{ "terms": [...], "tags": [...] }`,
     question,
     256
   );

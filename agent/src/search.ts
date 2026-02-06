@@ -4,6 +4,21 @@ export interface SearchStrategy {
   search(terms: string[]): Promise<string[]>;
 }
 
+// Split compound CJK terms into shorter substrings (e.g. "光纖傳輸" → ["光纖傳輸", "光纖", "傳輸"])
+function expandTerms(terms: string[]): string[] {
+  const expanded = new Set<string>();
+  for (const term of terms) {
+    expanded.add(term);
+    // If term is 4+ CJK chars, also try splitting into 2-char substrings
+    if (term.length >= 4 && /^[\u4e00-\u9fff]+$/.test(term)) {
+      for (let i = 0; i <= term.length - 2; i += 2) {
+        expanded.add(term.slice(i, i + 2));
+      }
+    }
+  }
+  return [...expanded];
+}
+
 class GrepSearch implements SearchStrategy {
   constructor(private notesPath: string) {}
 
@@ -20,6 +35,23 @@ class GrepSearch implements SearchStrategy {
         if (line) allFiles.add(line);
       }
     }
+
+    // Fallback: if original terms found very few results, retry with expanded shorter terms
+    if (allFiles.size < 3) {
+      const shorter = expandTerms(terms).filter(t => !terms.includes(t));
+      for (const term of shorter) {
+        const proc = Bun.spawn(["grep", "-rl", "--include=*.md", term, this.notesPath], {
+          stdout: "pipe",
+          stderr: "ignore",
+        });
+        const output = await new Response(proc.stdout).text();
+        await proc.exited;
+        for (const line of output.trim().split("\n")) {
+          if (line) allFiles.add(line);
+        }
+      }
+    }
+
     return [...allFiles];
   }
 }

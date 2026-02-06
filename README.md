@@ -49,6 +49,9 @@ physics-kb/
 │   ├── .env.example
 │   ├── package.json
 │   └── tsconfig.json
+├── demo/                  # Web Demo UI
+│   ├── server.ts          # Bun HTTP server（SSE 串流）
+│   └── index.html         # 單頁面（Markdown + LaTeX 渲染）
 ├── templates/             # 6 種筆記模板
 ├── scripts/
 │   └── index.sh           # qmd 索引建構腳本
@@ -118,6 +121,23 @@ bun run src/index.ts "問題" 2>/dev/null
 # 答案存檔
 bun run src/index.ts "問題" > answer.md
 ```
+
+### Web Demo
+
+不需要額外安裝，直接啟動：
+
+```bash
+cd demo
+bun run server.ts
+# → http://localhost:3456
+```
+
+功能：
+- 瀏覽器問答介面，點擊或輸入物理問題
+- 即時顯示 Agent 思考過程（搜尋 → Judge → 連結追蹤 → 生成 → 驗證）
+- Markdown + LaTeX 公式渲染
+- 多輪對話：追問「有相關題目嗎」「再給我一個」自動帶入上文
+- 出題去重：連續出題不會重複
 
 ## .env 設定
 

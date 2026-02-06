@@ -19,7 +19,16 @@ export async function answer(
 
   // 1. Extract keywords
   log("Extracting keywords...");
-  const { terms, tags } = await llm.extractKeywords(question);
+  let terms: string[];
+  let tags: string[];
+  try {
+    const kw = await llm.extractKeywords(question);
+    terms = kw.terms;
+    tags = kw.tags;
+  } catch {
+    log("無法拆解關鍵字（可能不是物理問題）");
+    return "抱歉，我是物理知識庫助教，只能回答高中物理相關的問題。請試試看問我物理概念、公式或科學家相關的問題！";
+  }
   log(`Keywords: ${terms.join(", ")}${tags.length ? ` | Tags: ${tags.join(", ")}` : ""}`);
 
   // 2. Initial search
