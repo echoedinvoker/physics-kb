@@ -432,6 +432,17 @@ function updateTimer() {
     (remainingSeconds <= 60 ? ' danger' : remainingSeconds <= 300 ? ' warning' : '');
 }
 
+// Init Clerk silently (no UI, just for auth token)
+(async () => {
+  for (let i = 0; i < 30; i++) {
+    if (window.Clerk) break;
+    await new Promise(r => setTimeout(r, 200));
+  }
+  if (window.Clerk) {
+    try { await window.Clerk.load(); } catch {}
+  }
+})();
+
 async function authFetch(url, options = {}) {
   const token = await window.Clerk?.session?.getToken();
   if (token) {
