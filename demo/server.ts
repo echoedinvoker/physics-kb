@@ -10,6 +10,8 @@ import type { Config } from "../agent/src/config";
 import { getPrerequisiteTree, listConcepts, buildConceptGraph } from "../agent/src/prerequisites";
 import { generateExam, evaluateExam, type ExamState } from "../agent/src/exam";
 import { getDailyChallenge, checkDailyAnswer } from "../agent/src/daily-challenge";
+import { supabaseAdmin, createUserClient } from "../agent/src/supabase";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 const PORT = parseInt(process.env.PORT ?? "3456", 10);
 const AGENT_DIR = resolve(import.meta.dir, "../agent");
@@ -71,6 +73,37 @@ async function buildNoteMap(): Promise<Record<string, string>> {
 const noteMap = await buildNoteMap();
 console.log(`Loaded ${Object.keys(noteMap).length} note URLs`);
 
+// --- Auth helpers ---
+const CLERK_PK = process.env.CLERK_PUBLISHABLE_KEY ?? "";
+
+function getUserClient(req: Request): SupabaseClient | null {
+  const auth = req.headers.get("Authorization");
+  if (!auth?.startsWith("Bearer ")) return null;
+  return createUserClient(auth.slice(7));
+}
+
+// UNVERIFIED: only for logging, not authorization. Auth goes through Supabase RLS.
+function getUserId(req: Request): string | null {
+  const auth = req.headers.get("Authorization");
+  if (!auth?.startsWith("Bearer ")) return null;
+  try {
+    const payload = JSON.parse(atob(auth.slice(7).split(".")[1]));
+    return payload.sub ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function serveHTML(filePath: string): Response {
+  const html = Bun.file(filePath).text();
+  return html.then((text) => {
+    const injected = text.replace(/__CLERK_PK__/g, CLERK_PK);
+    return new Response(injected, {
+      headers: { "Content-Type": "text/html; charset=utf-8" },
+    });
+  }) as unknown as Response;
+}
+
 // Meta questions about the conversation itself — answer directly without agent
 const META_PATTERNS = /^(剛才|上一個|之前|前面)(我)?(問了?|說了?)(什麼|啥|哪)/;
 
@@ -122,15 +155,15 @@ Bun.serve({
     const url = new URL(req.url);
 
     if (url.pathname === "/" || url.pathname === "/index.html") {
-      return new Response(Bun.file(resolve(import.meta.dir, "index.html")));
+      return serveHTML(resolve(import.meta.dir, "index.html"));
     }
 
     if (url.pathname === "/exam" || url.pathname === "/exam.html") {
-      return new Response(Bun.file(resolve(import.meta.dir, "exam.html")));
+      return serveHTML(resolve(import.meta.dir, "exam.html"));
     }
 
     if (url.pathname === "/benchmark" || url.pathname === "/benchmark.html") {
-      return new Response(Bun.file(resolve(import.meta.dir, "benchmark.html")));
+      return serveHTML(resolve(import.meta.dir, "benchmark.html"));
     }
 
     if (url.pathname === "/api/note-map") {
@@ -160,7 +193,7 @@ Bun.serve({
     }
 
     if (url.pathname === "/concepts" || url.pathname === "/concepts.html") {
-      return new Response(Bun.file(resolve(import.meta.dir, "concepts.html")));
+      return serveHTML(resolve(import.meta.dir, "concepts.html"));
     }
 
     if (url.pathname === "/api/ask" && req.method === "POST") {
@@ -428,6 +461,141 @@ Bun.serve({
       const result = evaluateExam(state, body.answers);
       exams.delete(body.examId); // one-time use
       return Response.json(result);
+    }
+
+    // --- User system API endpoints ---
+
+    // POST /api/attempt — record a single question attempt
+    if (url.pathname === "/api/attempt" && req.method === "POST") {
+      const client = getUserClient(req);
+      if (!client) return Response.json({ error: "Unauthorized" }, { status: 401 });
+
+      const body = (await req.json()) as { questionId: string; isCorrect: boolean };
+      if (!body.questionId) return Response.json({ error: "questionId required" }, { status: 400 });
+
+      // Look up concept_id from questions table (admin client, no RLS)
+      const { data: q } = await supabaseAdmin
+        .from("questions")
+        .select("concept_id")
+        .eq("id", body.questionId)
+        .single();
+      if (!q) return Response.json({ error: "Question not found" }, { status: 404 });
+
+      const userId = getUserId(req);
+      const { error } = await client.from("question_attempts").insert({
+        user_id: userId,
+        question_id: body.questionId,
+        concept_id: q.concept_id,
+        is_correct: body.isCorrect,
+      });
+      if (error) return Response.json({ error: error.message }, { status: 500 });
+      return Response.json({ success: true });
+    }
+
+    // POST /api/attempts — batch record (exam results)
+    if (url.pathname === "/api/attempts" && req.method === "POST") {
+      const client = getUserClient(req);
+      if (!client) return Response.json({ error: "Unauthorized" }, { status: 401 });
+
+      const body = (await req.json()) as { attempts: { questionId: string; isCorrect: boolean }[] };
+      if (!body.attempts?.length) return Response.json({ error: "attempts required" }, { status: 400 });
+
+      const userId = getUserId(req);
+      const questionIds = body.attempts.map((a) => a.questionId);
+
+      // Batch lookup concept_ids
+      const { data: questions } = await supabaseAdmin
+        .from("questions")
+        .select("id, concept_id")
+        .in("id", questionIds);
+      const conceptMap = new Map((questions ?? []).map((q) => [q.id, q.concept_id]));
+
+      const rows = body.attempts
+        .filter((a) => conceptMap.has(a.questionId))
+        .map((a) => ({
+          user_id: userId,
+          question_id: a.questionId,
+          concept_id: conceptMap.get(a.questionId),
+          is_correct: a.isCorrect,
+        }));
+
+      const { error } = await client.from("question_attempts").insert(rows);
+      if (error) return Response.json({ error: error.message }, { status: 500 });
+      return Response.json({ success: true, count: rows.length });
+    }
+
+    // GET /api/mastery — get user's concept mastery
+    if (url.pathname === "/api/mastery" && req.method === "GET") {
+      const client = getUserClient(req);
+      if (!client) return Response.json({ error: "Unauthorized" }, { status: 401 });
+
+      const { data: mastery } = await client.from("concept_mastery").select("*");
+      const { data: prereqs } = await supabaseAdmin.from("concept_prerequisites").select("*");
+      const { data: allConcepts } = await supabaseAdmin.from("concepts").select("id");
+
+      // Build mastery map
+      const masteryMap: Record<string, { correctCount: number; isMastered: boolean; masteredAt: string | null }> = {};
+      for (const m of mastery ?? []) {
+        masteryMap[m.concept_id] = {
+          correctCount: m.correct_count,
+          isMastered: m.is_mastered,
+          masteredAt: m.mastered_at,
+        };
+      }
+
+      // Calculate unlocked concepts (all prerequisites mastered)
+      const prereqMap = new Map<string, string[]>();
+      for (const p of prereqs ?? []) {
+        if (!prereqMap.has(p.concept_id)) prereqMap.set(p.concept_id, []);
+        prereqMap.get(p.concept_id)!.push(p.prerequisite_id);
+      }
+
+      const unlocked: string[] = [];
+      const total = allConcepts?.length ?? 0;
+      let masteredCount = 0;
+
+      for (const c of allConcepts ?? []) {
+        if (masteryMap[c.id]?.isMastered) masteredCount++;
+        const deps = prereqMap.get(c.id) ?? [];
+        const allDepsMet = deps.every((d) => masteryMap[d]?.isMastered);
+        if (allDepsMet) unlocked.push(c.id);
+      }
+
+      return Response.json({
+        mastery: masteryMap,
+        unlocked,
+        stats: { mastered: masteredCount, total },
+      });
+    }
+
+    // POST /api/daily-challenge/attempt — record daily challenge attempt
+    if (url.pathname === "/api/daily-challenge/attempt" && req.method === "POST") {
+      const client = getUserClient(req);
+      if (!client) return Response.json({ error: "Unauthorized" }, { status: 401 });
+
+      const body = (await req.json()) as { isCorrect: boolean; date: string };
+      const userId = getUserId(req);
+
+      // ON CONFLICT DO NOTHING (one attempt per day)
+      const { error } = await client.from("daily_challenge_attempts").insert({
+        user_id: userId,
+        challenge_date: body.date || new Date().toISOString().split("T")[0],
+        is_correct: body.isCorrect,
+      });
+      // Ignore unique constraint violations (duplicate submission)
+      if (error && !error.message.includes("duplicate")) {
+        return Response.json({ error: error.message }, { status: 500 });
+      }
+      return Response.json({ success: true });
+    }
+
+    // GET /api/user/streak — get user's daily challenge streak
+    if (url.pathname === "/api/user/streak" && req.method === "GET") {
+      const client = getUserClient(req);
+      if (!client) return Response.json({ error: "Unauthorized" }, { status: 401 });
+
+      const { data } = await client.from("user_streaks").select("*").single();
+      return Response.json(data ?? { current_streak: 0, longest_streak: 0, last_correct_date: null });
     }
 
     return new Response("Not Found", { status: 404 });

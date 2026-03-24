@@ -7,6 +7,11 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script
+  async crossorigin="anonymous"
+  data-clerk-publishable-key="__CLERK_PK__"
+  src="https://profound-cobra-43.clerk.accounts.dev/npm/@clerk/clerk-js@5/dist/clerk.browser.js"
+></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   :root {
@@ -36,7 +41,30 @@
     padding: 24px 32px;
     border-bottom: 1px solid var(--border);
     text-align: center;
+    position: relative;
   }
+  #user-button { position: absolute; top: 16px; right: 24px; }
+  #sign-in-btn {
+    position: absolute; top: 18px; right: 24px;
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--text2); padding: 6px 14px; border-radius: 8px;
+    font-size: 0.8rem; cursor: pointer; transition: all 0.15s;
+  }
+  #sign-in-btn:hover { border-color: var(--accent); color: var(--text); }
+  .mastery-panel {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px 20px; margin-bottom: 20px;
+    display: none;
+  }
+  .mastery-panel .mp-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .mastery-panel .mp-stat { font-size: 0.85rem; color: var(--text2); }
+  .mastery-panel .mp-stat strong { color: var(--text); font-size: 1rem; }
+  .mastery-panel .mp-bar {
+    flex: 1; min-width: 120px; height: 6px; background: var(--surface2);
+    border-radius: 3px; overflow: hidden;
+  }
+  .mastery-panel .mp-fill { height: 100%; background: var(--green); border-radius: 3px; transition: width 0.3s; }
+  .mastery-panel .mp-streak { color: var(--yellow); font-size: 0.85rem; }
   header h1 {
     font-size: 1.5rem;
     font-weight: 600;
@@ -531,6 +559,8 @@
 <header>
   <h1><span>&#x1F52C;</span> 物理知識庫 AI 助教</h1>
   <p>高中 108 課綱物理 &bull; 342 篇原子化筆記 &bull; Agentic RAG &bull; <a href="/exam" style="color:var(--accent);text-decoration:none">模擬考</a> &bull; <a href="/concepts" style="color:var(--accent);text-decoration:none">概念星圖</a> &bull; <a href="/benchmark" style="color:var(--accent);text-decoration:none">Benchmark</a></p>
+  <div id="user-button"></div>
+  <button id="sign-in-btn" style="display:none" onclick="window.Clerk?.openSignIn()">登入</button>
 </header>
 
 <main>
@@ -539,6 +569,15 @@
     <button class="mode-btn" data-mode="socratic" onclick="setMode('socratic')">導師</button>
     <button class="mode-btn" data-mode="misconception" onclick="setMode('misconception')">概念診斷</button>
     <button class="mode-btn" data-mode="prerequisites" onclick="setMode('prerequisites')">學習路徑</button>
+  </div>
+
+  <!-- Mastery Panel (shown when logged in) -->
+  <div class="mastery-panel" id="masteryPanel">
+    <div class="mp-row">
+      <div class="mp-stat">已掌握 <strong id="mpMastered">0</strong> / <strong id="mpTotal">57</strong> 概念</div>
+      <div class="mp-bar"><div class="mp-fill" id="mpFill" style="width:0%"></div></div>
+      <div class="mp-streak" id="mpStreak"></div>
+    </div>
   </div>
 
   <!-- Daily Challenge -->
@@ -586,6 +625,76 @@ const btn = document.getElementById('askBtn');
 let busy = false;
 let questionHistory = [];
 let shownQuestions = [];
+
+// --- Clerk Auth ---
+async function authFetch(url, options = {}) {
+  const token = await window.Clerk?.session?.getToken();
+  if (token) {
+    options.headers = { ...options.headers, Authorization: 'Bearer ' + token };
+  }
+  return fetch(url, options);
+}
+
+function isLoggedIn() {
+  return !!window.Clerk?.user;
+}
+
+async function loadMasteryPanel() {
+  if (!window.Clerk?.user) return;
+  try {
+    const masteryRes = await authFetch('/api/mastery');
+    const masteryData = await masteryRes.json();
+
+    const panel = document.getElementById('masteryPanel');
+    panel.style.display = 'block';
+    document.getElementById('mpMastered').textContent = masteryData.stats?.mastered ?? 0;
+    document.getElementById('mpTotal').textContent = masteryData.stats?.total ?? 57;
+    const total = masteryData.stats?.total || 57;
+    const mastered = masteryData.stats?.mastered || 0;
+    document.getElementById('mpFill').style.width = (mastered / total * 100) + '%';
+
+    // Streak (separate, non-blocking)
+    authFetch('/api/user/streak').then(r => r.json()).then(streakData => {
+      if (streakData.current_streak > 0) {
+        document.getElementById('mpStreak').textContent = '🔥 ' + streakData.current_streak + ' 天連續';
+      }
+    }).catch(() => {});
+  } catch (e) { console.error('loadMasteryPanel error:', e); }
+}
+
+// Clerk init
+async function initClerk() {
+  // Wait for Clerk script to load
+  for (let i = 0; i < 50; i++) {
+    if (window.Clerk) break;
+    await new Promise(r => setTimeout(r, 200));
+  }
+  if (!window.Clerk) { console.log('Clerk not available'); return; }
+
+  await window.Clerk.load();
+  console.log('Clerk loaded, user:', !!window.Clerk.user);
+
+  let masteryLoaded = false;
+  function handleUser(user) {
+    if (user) {
+      document.getElementById('sign-in-btn').style.display = 'none';
+      const ub = document.getElementById('user-button');
+      if (ub && !ub.hasChildNodes()) {
+        window.Clerk.mountUserButton(ub);
+      }
+      if (!masteryLoaded) { masteryLoaded = true; loadMasteryPanel(); }
+    } else {
+      document.getElementById('sign-in-btn').style.display = '';
+      document.getElementById('user-button').innerHTML = '';
+      document.getElementById('masteryPanel').style.display = 'none';
+      document.getElementById('sign-in-btn').style.display = 'block';
+    }
+  }
+
+  handleUser(window.Clerk.user);
+  window.Clerk.addListener(({ user }) => handleUser(user));
+}
+initClerk().catch(e => console.error('Clerk init error:', e));
 let noteMap = {};
 let currentMode = 'normal';
 let sessionId = null;
@@ -935,6 +1044,21 @@ function loadDailyChallenge() {
 function submitDailyAnswer(answer, btnEl) {
   // Disable all buttons
   document.querySelectorAll('.dc-opt').forEach(b => b.classList.add('disabled'));
+
+  // Fire-and-forget: record to Supabase if logged in
+  if (isLoggedIn()) {
+    fetch('/api/daily-challenge/check', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ answer }),
+    }).then(r => r.json()).then(data => {
+      authFetch('/api/daily-challenge/attempt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isCorrect: data.correct, date: new Date().toISOString().split('T')[0] }),
+      }).catch(() => {});
+    }).catch(() => {});
+  }
 
   fetch('/api/daily-challenge/check', {
     method: 'POST',
