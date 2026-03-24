@@ -1,0 +1,6 @@
+.env
+agent/.env
+agent/node_modules
+node_modules
+.git
+supabase/seed.sql
