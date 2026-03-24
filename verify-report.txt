@@ -1,0 +1,27 @@
+=== Summary ===
+Total notes: 342
+Errors: 0
+Warnings: 0
+Broken links: 0
+Duplicates: 0
+
+=== Physics KB Verify Report ===
+Date: 2026-02-25 14:03
+Target: /home/matt/Documents/physics-kb/notes
+
+## 1. LaTeX 語法 + Frontmatter 完整性
+
+  (無錯誤)
+
+## 2. Warnings
+
+  (無警告)
+
+## 3. Broken Links
+
+  (無 broken links)
+
+## 4. 重複偵測
+
+  (無重複)
+

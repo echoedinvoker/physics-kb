@@ -276,6 +276,246 @@
     cursor: not-allowed;
   }
 
+  /* Mode toggle */
+  .mode-toggle {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    margin-bottom: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 4px;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .mode-btn {
+    background: none;
+    border: none;
+    color: var(--text2);
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .mode-btn:hover { color: var(--text); }
+  .mode-btn.active {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  /* Tutor icon */
+  .msg-tutor .msg-icon {
+    background: #2d4a3e;
+    border: 1px solid #4ade80;
+  }
+
+  /* Prerequisite tree */
+  .prereq-tree {
+    padding: 16px;
+  }
+  .prereq-node {
+    position: relative;
+    padding: 10px 16px;
+    margin: 8px 0 8px 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 0.9rem;
+    transition: border-color 0.15s;
+  }
+  .prereq-node:hover { border-color: var(--accent); }
+  .prereq-node.root {
+    margin-left: 0;
+    border-color: var(--accent);
+    background: var(--surface2);
+  }
+  .prereq-node.leaf {
+    border-color: var(--green);
+  }
+  .prereq-name {
+    font-weight: 600;
+    color: var(--text);
+  }
+  .prereq-desc {
+    font-size: 0.8rem;
+    color: var(--text2);
+    margin-top: 4px;
+  }
+  .prereq-badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: 8px;
+  }
+  .prereq-badge.leaf-badge {
+    background: rgba(74, 222, 128, 0.15);
+    color: var(--green);
+  }
+  .prereq-badge.root-badge {
+    background: rgba(108, 140, 255, 0.15);
+    color: var(--accent);
+  }
+  .prereq-children {
+    border-left: 2px solid var(--border);
+    margin-left: 16px;
+    padding-left: 8px;
+  }
+
+  /* Daily Challenge */
+  .daily-challenge {
+    margin-bottom: 24px;
+  }
+  .dc-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .dc-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--green));
+  }
+  .dc-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .dc-badge {
+    background: var(--accent);
+    color: #fff;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .dc-meta {
+    font-size: 0.75rem;
+    color: var(--text2);
+  }
+  .dc-question {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    margin-bottom: 14px;
+    white-space: pre-wrap;
+  }
+  .dc-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .dc-opt {
+    background: var(--surface2);
+    border: 2px solid var(--border);
+    color: var(--text);
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    min-width: 60px;
+    text-align: center;
+  }
+  .dc-opt:hover { border-color: var(--accent); }
+  .dc-opt.correct {
+    border-color: var(--green);
+    background: rgba(74, 222, 128, 0.15);
+    color: var(--green);
+  }
+  .dc-opt.wrong {
+    border-color: var(--red);
+    background: rgba(248, 113, 113, 0.15);
+    color: var(--red);
+  }
+  .dc-opt.disabled { pointer-events: none; opacity: 0.5; }
+  .dc-result {
+    margin-top: 16px;
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    animation: fadeIn 0.3s ease;
+  }
+  .dc-result.correct-bg {
+    background: rgba(74, 222, 128, 0.08);
+    border: 1px solid rgba(74, 222, 128, 0.2);
+  }
+  .dc-result.wrong-bg {
+    background: rgba(248, 113, 113, 0.08);
+    border: 1px solid rgba(248, 113, 113, 0.2);
+  }
+  .dc-result .dc-concepts {
+    margin-top: 10px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .dc-result .dc-concept-chip {
+    background: rgba(108, 140, 255, 0.15);
+    color: var(--accent);
+    padding: 3px 10px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+  }
+
+  /* Metrics panel */
+  .metrics-panel {
+    margin-top: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 0.8rem;
+    overflow: hidden;
+  }
+  .metrics-summary {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 10px 16px;
+    cursor: pointer;
+    color: var(--text2);
+    user-select: none;
+    transition: color 0.15s;
+  }
+  .metrics-summary:hover { color: var(--text); }
+  .metrics-summary .ms-item { display: flex; align-items: center; gap: 4px; }
+  .metrics-summary .ms-label { font-size: 0.7rem; }
+  .metrics-summary .ms-value { font-weight: 600; color: var(--text); }
+  .metrics-toggle { transition: transform 0.2s; font-size: 0.65rem; margin-left: auto; }
+  .metrics-panel.open .metrics-toggle { transform: rotate(90deg); }
+  .metrics-breakdown {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+  .metrics-panel.open .metrics-breakdown { max-height: 400px; }
+  .metrics-breakdown table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.75rem;
+  }
+  .metrics-breakdown th, .metrics-breakdown td {
+    padding: 6px 12px;
+    text-align: left;
+    border-top: 1px solid var(--border);
+  }
+  .metrics-breakdown th {
+    color: var(--text2);
+    font-weight: 500;
+  }
+  .metrics-breakdown td { color: var(--text); }
+  .metrics-breakdown .cost-col { color: var(--yellow); }
+  .metrics-breakdown .time-col { color: var(--accent); }
+
   /* Footer info */
   .footer-info {
     text-align: center;
@@ -290,10 +530,30 @@
 
 <header>
   <h1><span>&#x1F52C;</span> 物理知識庫 AI 助教</h1>
-  <p>高中 108 課綱物理 &bull; 307 篇原子化筆記 &bull; Agentic RAG</p>
+  <p>高中 108 課綱物理 &bull; 342 篇原子化筆記 &bull; Agentic RAG &bull; <a href="/exam" style="color:var(--accent);text-decoration:none">模擬考</a> &bull; <a href="/concepts" style="color:var(--accent);text-decoration:none">概念星圖</a> &bull; <a href="/benchmark" style="color:var(--accent);text-decoration:none">Benchmark</a></p>
 </header>
 
 <main>
+  <div class="mode-toggle" id="modeToggle">
+    <button class="mode-btn active" data-mode="normal" onclick="setMode('normal')">問答</button>
+    <button class="mode-btn" data-mode="socratic" onclick="setMode('socratic')">導師</button>
+    <button class="mode-btn" data-mode="misconception" onclick="setMode('misconception')">概念診斷</button>
+    <button class="mode-btn" data-mode="prerequisites" onclick="setMode('prerequisites')">學習路徑</button>
+  </div>
+
+  <!-- Daily Challenge -->
+  <div class="daily-challenge" id="dailyChallenge" style="display:none">
+    <div class="dc-card">
+      <div class="dc-header">
+        <span class="dc-badge">每日挑戰</span>
+        <span class="dc-meta" id="dcMeta"></span>
+      </div>
+      <div class="dc-question" id="dcQuestion"></div>
+      <div class="dc-options" id="dcOptions"></div>
+      <div class="dc-result" id="dcResult" style="display:none"></div>
+    </div>
+  </div>
+
   <div class="examples" id="examples">
     <h3>試試看</h3>
     <div class="example-chips">
@@ -302,6 +562,8 @@
       <div class="chip" onclick="ask(this.textContent)">庫侖定律的平方反比是什麼意思？</div>
       <div class="chip" onclick="ask(this.textContent)">從伽利略到牛頓的力學轉變？</div>
       <div class="chip" onclick="ask(this.textContent)">雷射的物理原理是什麼？</div>
+      <div class="chip" onclick="ask(this.textContent)">給我五個隨機題目</div>
+      <div class="chip" onclick="ask(this.textContent)">來三個光學的進階題</div>
     </div>
   </div>
 
@@ -323,11 +585,72 @@ const input = document.getElementById('questionInput');
 const btn = document.getElementById('askBtn');
 let busy = false;
 let questionHistory = [];
-let shownQuestions = []; // Track Q-IDs that have been shown to avoid duplicates
-let noteMap = {}; // title → garden URL
+let shownQuestions = [];
+let noteMap = {};
+let currentMode = 'normal';
+let sessionId = null;
+
+const normalExamples = [
+  '光纖為什麼能傳輸訊號？',
+  '愛因斯坦有哪些重要貢獻？',
+  '庫侖定律的平方反比是什麼意思？',
+  '從伽利略到牛頓的力學轉變？',
+  '雷射的物理原理是什麼？',
+  '給我五個隨機題目',
+  '來三個光學的進階題',
+];
+const socraticExamples = [
+  '引導我理解全反射',
+  '帶我推導折射定律',
+  '為什麼光纖可以傳輸訊號？',
+  '庫侖定律和萬有引力有什麼關係？',
+];
+const misconceptionExamples = [
+  '全反射就是光照到鏡子被反射回來',
+  '光速在水中比空氣中快',
+  '庫侖力只作用在帶正電的物體上',
+  '溫度越高氣體分子運動越慢',
+];
+const prerequisiteExamples = [
+  '全反射',
+  '光纖通訊',
+  '光電效應',
+  '庫侖定律',
+  '雷射',
+];
 
 // Load note map on startup
 fetch('/api/note-map').then(r => r.json()).then(m => { noteMap = m; buildSortedNotes(); });
+
+function setMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.mode === mode);
+  });
+  // Clear conversation and reset state
+  conv.innerHTML = '';
+  busy = false;
+  btn.disabled = false;
+  questionHistory = [];
+  shownQuestions = [];
+  // Update examples
+  const ex = document.getElementById('examples');
+  ex.style.display = '';
+  const chips = ex.querySelector('.example-chips');
+  const exampleSets = { normal: normalExamples, socratic: socraticExamples, misconception: misconceptionExamples, prerequisites: prerequisiteExamples };
+  const examples = exampleSets[mode] || normalExamples;
+  chips.innerHTML = examples.map(e => `<div class="chip" onclick="ask(this.textContent)">${e}</div>`).join('');
+  const placeholders = { normal: '輸入你的物理問題...', socratic: '輸入你想理解的概念或問題...', misconception: '輸入你的回答讓系統診斷概念錯誤...', prerequisites: '輸入概念名稱查看學習路徑...' };
+  input.placeholder = placeholders[mode] || placeholders.normal;
+  input.value = '';
+  // Reset session
+  sessionId = mode === 'socratic' ? crypto.randomUUID() : null;
+  // Show daily challenge only in normal mode
+  const dcEl = document.getElementById('dailyChallenge');
+  if (dcEl) dcEl.style.display = mode === 'normal' ? '' : 'none';
+  // Scroll to top
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
 function ask(text) {
   if (busy) return;
@@ -350,6 +673,26 @@ function ask(text) {
   `;
   conv.appendChild(userMsg);
 
+  // Prerequisites mode: direct API call, no SSE
+  if (currentMode === 'prerequisites') {
+    const agentMsg = el('div', 'msg msg-agent');
+    const body = el('div', 'msg-body');
+    agentMsg.innerHTML = `<div class="msg-icon">P</div>`;
+    agentMsg.appendChild(body);
+    conv.appendChild(agentMsg);
+    body.innerHTML = '<p style="color:var(--text2)">查詢前置概念中...</p>';
+    scrollDown();
+    fetch(`/api/prerequisites?concept=${encodeURIComponent(question)}`)
+      .then(r => { if (!r.ok) throw new Error(r.status === 404 ? `找不到概念「${question}」` : 'API error'); return r.json(); })
+      .then(tree => {
+        body.innerHTML = '<div class="prereq-tree">' + renderPrereqTree(tree, true) + '</div>';
+        scrollDown();
+      })
+      .catch(err => { body.innerHTML = `<p style="color:var(--red)">${esc(err.message)}</p>`; })
+      .finally(() => { busy = false; btn.disabled = false; input.focus(); });
+    return;
+  }
+
   // Agent message
   const agentMsg = el('div', 'msg msg-agent');
   const thinkingEl = el('div', 'thinking open');
@@ -366,10 +709,15 @@ function ask(text) {
   thinkingEl.appendChild(logsWrap);
 
   const answerEl = el('div', 'answer');
+  const metricsEl = el('div', 'metrics-panel');
+  metricsEl.style.display = 'none';
   const body = el('div', 'msg-body');
   body.appendChild(thinkingEl);
   body.appendChild(answerEl);
-  agentMsg.innerHTML = `<div class="msg-icon">A</div>`;
+  body.appendChild(metricsEl);
+  const isTutor = currentMode === 'socratic';
+  agentMsg.innerHTML = `<div class="msg-icon">${isTutor ? 'T' : 'A'}</div>`;
+  if (isTutor) agentMsg.classList.add('msg-tutor');
   agentMsg.appendChild(body);
   conv.appendChild(agentMsg);
   scrollDown();
@@ -378,7 +726,7 @@ function ask(text) {
   fetch('/api/ask', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ question, history: questionHistory, shownQuestions }),
+    body: JSON.stringify({ question, history: questionHistory, shownQuestions, mode: currentMode, sessionId }),
   }).then(res => {
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
@@ -397,6 +745,8 @@ function ask(text) {
           try {
             const msg = JSON.parse(data);
             if (msg.type === 'log') {
+              // Skip [metrics] lines from subprocess stderr
+              if (msg.text && msg.text.includes('[metrics]')) continue;
               const colored = colorLog(msg.text);
               logsEl.innerHTML += colored + '\n';
               logsWrap.scrollTop = logsWrap.scrollHeight;
@@ -409,6 +759,9 @@ function ask(text) {
               // Extract Q-IDs from answer to prevent duplicates
               const qIds = msg.text.match(/Q-[\w\u4e00-\u9fff]+-[\w\u4e00-\u9fff]+-\d+/g) || [];
               for (const id of qIds) { if (!shownQuestions.includes(id)) shownQuestions.push(id); }
+              scrollDown();
+            } else if (msg.type === 'metrics_summary') {
+              renderMetricsPanel(metricsEl, msg.data);
               scrollDown();
             } else if (msg.type === 'error') {
               answerEl.innerHTML = `<p style="color:var(--red)">${esc(msg.text)}</p>`;
@@ -505,6 +858,188 @@ function esc(s) {
 
 function scrollDown() {
   window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+}
+
+function renderPrereqTree(node, isRoot) {
+  const isLeaf = !node.prerequisites || node.prerequisites.length === 0;
+  const cls = isRoot ? 'prereq-node root' : isLeaf ? 'prereq-node leaf' : 'prereq-node';
+  const badge = isRoot ? '<span class="prereq-badge root-badge">目標</span>'
+    : isLeaf ? '<span class="prereq-badge leaf-badge">可直接學</span>' : '';
+  const gardenUrl = noteMap[node.name];
+  const nameHtml = gardenUrl
+    ? `<a href="${gardenUrl}" target="_blank" class="note-link prereq-name">${esc(node.name)}</a>`
+    : `<span class="prereq-name">${esc(node.name)}</span>`;
+  let html = `<div class="${cls}">${nameHtml}${badge}`;
+  if (node.description) {
+    html += `<div class="prereq-desc">${esc(node.description)}</div>`;
+  }
+  html += '</div>';
+  if (node.prerequisites && node.prerequisites.length > 0) {
+    html += '<div class="prereq-children">';
+    for (const child of node.prerequisites) {
+      html += renderPrereqTree(child, false);
+    }
+    html += '</div>';
+  }
+  return html;
+}
+
+// --- Daily Challenge ---
+const DC_KEY = 'daily-challenge-answered';
+
+function loadDailyChallenge() {
+  // Check localStorage for already answered today
+  const stored = localStorage.getItem(DC_KEY);
+  if (stored) {
+    try {
+      const data = JSON.parse(stored);
+      if (data.date === new Date().toISOString().split('T')[0]) {
+        // Already answered today — show completed state
+        showDailyCompleted(data);
+        return;
+      }
+    } catch {}
+  }
+
+  fetch('/api/daily-challenge')
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) return;
+      const dcEl = document.getElementById('dailyChallenge');
+      dcEl.style.display = '';
+      document.getElementById('dcMeta').textContent =
+        `${data.date} · ${data.difficulty} · Ch.${data.chapter}`;
+
+      // Parse question text - split into question body and options
+      const qText = data.questionText;
+      document.getElementById('dcQuestion').textContent = qText.replace(/\([A-E]\)/g, '\n$&').trim();
+
+      // Extract options
+      const optMatches = qText.match(/\([A-E]\)[^(]*/g);
+      const optionsEl = document.getElementById('dcOptions');
+      if (optMatches) {
+        optionsEl.innerHTML = optMatches.map(o => {
+          const letter = o.match(/\(([A-E])\)/)[1];
+          return `<button class="dc-opt" onclick="submitDailyAnswer('${letter}', this)">${o.trim()}</button>`;
+        }).join('');
+      } else {
+        // No parsed options, show ABCDE buttons
+        optionsEl.innerHTML = 'ABCDE'.split('').map(l =>
+          `<button class="dc-opt" onclick="submitDailyAnswer('${l}', this)">${l}</button>`
+        ).join('');
+      }
+    })
+    .catch(() => {});
+}
+
+function submitDailyAnswer(answer, btnEl) {
+  // Disable all buttons
+  document.querySelectorAll('.dc-opt').forEach(b => b.classList.add('disabled'));
+
+  fetch('/api/daily-challenge/check', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ answer }),
+  })
+    .then(r => r.json())
+    .then(data => {
+      btnEl.classList.add(data.correct ? 'correct' : 'wrong');
+
+      // Highlight correct answer if wrong
+      if (!data.correct) {
+        document.querySelectorAll('.dc-opt').forEach(b => {
+          if (b.textContent.trim().startsWith('(' + data.correctAnswer + ')') ||
+              b.textContent.trim() === data.correctAnswer) {
+            b.classList.add('correct');
+          }
+        });
+      }
+
+      const resultEl = document.getElementById('dcResult');
+      resultEl.style.display = '';
+      resultEl.className = 'dc-result ' + (data.correct ? 'correct-bg' : 'wrong-bg');
+
+      const conceptChips = (data.relatedConcepts || [])
+        .map(c => `<span class="dc-concept-chip">${esc(c)}</span>`).join('');
+
+      resultEl.innerHTML = data.correct
+        ? `<strong style="color:var(--green)">答對了！</strong><br>${esc(data.explanation)}${conceptChips ? '<div class="dc-concepts">相關概念：' + conceptChips + '</div>' : ''}`
+        : `<strong style="color:var(--red)">答錯了</strong>（正確答案：${esc(data.correctAnswer)}）<br>${esc(data.explanation)}${conceptChips ? '<div class="dc-concepts">相關概念：' + conceptChips + '</div>' : ''}<br><br><a href="javascript:ask('${data.relatedConcepts[0] || ''}是什麼？')" style="color:var(--accent)">去問問看 →</a>`;
+
+      // Save to localStorage
+      localStorage.setItem(DC_KEY, JSON.stringify({
+        date: new Date().toISOString().split('T')[0],
+        correct: data.correct,
+        answer,
+        correctAnswer: data.correctAnswer,
+        explanation: data.explanation,
+        relatedConcepts: data.relatedConcepts,
+      }));
+    });
+}
+
+function showDailyCompleted(data) {
+  const dcEl = document.getElementById('dailyChallenge');
+  dcEl.style.display = '';
+  const card = dcEl.querySelector('.dc-card');
+  const icon = data.correct ? '✅' : '❌';
+  const color = data.correct ? 'var(--green)' : 'var(--red)';
+  card.innerHTML = `
+    <div class="dc-header">
+      <span class="dc-badge">每日挑戰</span>
+      <span class="dc-meta">${data.date} · 已完成</span>
+    </div>
+    <div style="font-size:0.9rem;color:${color}">${icon} ${data.correct ? '今天答對了！' : '今天答錯了（正確答案：' + esc(data.correctAnswer) + '）'}</div>
+  `;
+}
+
+loadDailyChallenge();
+
+// Auto-fill from ?q= query string (e.g. from concepts page "問問看")
+const urlParams = new URLSearchParams(window.location.search);
+const autoQ = urlParams.get('q');
+if (autoQ) {
+  input.value = autoQ;
+  // Clean URL without reloading
+  history.replaceState(null, '', '/');
+}
+
+function renderMetricsPanel(container, data) {
+  const totalSec = (data.totalDurationMs / 1000).toFixed(1);
+  const totalTokens = (data.totalInputTokens + data.totalOutputTokens).toLocaleString();
+  const costUSD = data.totalCostUSD.toFixed(4);
+  const costNTD = (data.totalCostUSD * 32.5).toFixed(2);
+
+  let breakdownRows = '';
+  if (data.breakdown && data.breakdown.length) {
+    for (const b of data.breakdown) {
+      const modelShort = b.model.includes('haiku') ? 'Haiku' : 'Sonnet';
+      breakdownRows += `<tr>
+        <td>${esc(b.phase)}</td>
+        <td>${modelShort}</td>
+        <td class="time-col">${(b.durationMs/1000).toFixed(1)}s</td>
+        <td>${b.inputTokens.toLocaleString()}</td>
+        <td>${b.outputTokens.toLocaleString()}</td>
+        <td class="cost-col">$${b.costUSD.toFixed(4)}</td>
+      </tr>`;
+    }
+  }
+
+  container.style.display = '';
+  container.innerHTML = `
+    <div class="metrics-summary" onclick="this.parentElement.classList.toggle('open')">
+      <div class="ms-item"><span class="ms-label">⏱</span><span class="ms-value">${totalSec}s</span></div>
+      <div class="ms-item"><span class="ms-label">📊</span><span class="ms-value">${totalTokens} tokens</span></div>
+      <div class="ms-item"><span class="ms-label">💰</span><span class="ms-value">$${costUSD} (~NT$${costNTD})</span></div>
+      <span class="metrics-toggle">▶</span>
+    </div>
+    <div class="metrics-breakdown">
+      <table>
+        <tr><th>Phase</th><th>Model</th><th>Time</th><th>In</th><th>Out</th><th>Cost</th></tr>
+        ${breakdownRows}
+      </table>
+    </div>
+  `;
 }
 
 input.focus();

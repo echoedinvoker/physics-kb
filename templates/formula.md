@@ -9,6 +9,10 @@ tags:
   - difficulty/{{DIFFICULTY}}
   - source/108-textbook
   - status/draft
+chapter: "{{CHAPTER}}"
+topic_path: "{{TOPIC_PATH}}"
+related_chapters: []
+context_header: "{{CONTEXT_HEADER}}"
 ---
 
 # {{TITLE}}

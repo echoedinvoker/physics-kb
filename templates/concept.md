@@ -9,6 +9,10 @@ tags:
   - difficulty/{{DIFFICULTY}}
   - source/108-textbook
   - status/draft
+chapter: "{{CHAPTER}}"
+topic_path: "{{TOPIC_PATH}}"
+related_chapters: []
+context_header: "{{CONTEXT_HEADER}}"
 prerequisites: ["[[{{PREREQ_1}}]]", "[[{{PREREQ_2}}]]"]
 ---
 
@@ -26,6 +30,7 @@ prerequisites: ["[[{{PREREQ_1}}]]", "[[{{PREREQ_2}}]]"]
 
 核心內容。包含歷史脈絡、關鍵人物、發展過程。
 提到人物時連結到人物筆記：[[人物名]]。
+引用其他概念時需自足說明——先用一兩句話解釋概念本身，再附 wikilink（詳見 [[概念名]]）。
 
 ## 常見錯誤
 

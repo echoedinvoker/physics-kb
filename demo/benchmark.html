@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Benchmark 儀表板 — 物理知識庫 AI 助教</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #232733;
+    --border: #2e3345;
+    --text: #e2e4eb;
+    --text2: #8b8fa3;
+    --accent: #6c8cff;
+    --accent2: #4a6ae5;
+    --green: #4ade80;
+    --yellow: #fbbf24;
+    --red: #f87171;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 32px;
+  }
+
+  .container { max-width: 960px; margin: 0 auto; }
+
+  header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  header h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  header h1 span { color: var(--accent); }
+  header p {
+    margin-top: 6px;
+    color: var(--text2);
+    font-size: 0.85rem;
+  }
+  header .nav {
+    margin-top: 12px;
+    font-size: 0.8rem;
+  }
+  header .nav a {
+    color: var(--accent);
+    text-decoration: none;
+    margin: 0 8px;
+  }
+  header .nav a:hover { text-decoration: underline; }
+
+  /* Section */
+  section {
+    margin-bottom: 40px;
+  }
+  section h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* Test buttons */
+  .test-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .test-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .test-card:hover { border-color: var(--accent); }
+  .test-card.running { border-color: var(--yellow); }
+  .test-card.done { border-color: var(--green); }
+  .test-card h3 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .test-card .desc {
+    font-size: 0.75rem;
+    color: var(--text2);
+    margin-bottom: 8px;
+  }
+  .test-card .result {
+    font-size: 0.8rem;
+    min-height: 24px;
+  }
+  .test-card .result .time { color: var(--accent); font-weight: 600; }
+  .test-card .result .cost { color: var(--yellow); font-weight: 600; }
+  .test-card .result .tokens { color: var(--text2); }
+
+  /* Breakdown table */
+  .breakdown {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 12px;
+    display: none;
+  }
+  .breakdown.visible { display: block; }
+  .breakdown table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+  }
+  .breakdown th, .breakdown td {
+    padding: 8px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  .breakdown th {
+    background: var(--surface2);
+    color: var(--text2);
+    font-weight: 500;
+    font-size: 0.75rem;
+  }
+  .breakdown .cost-col { color: var(--yellow); }
+  .breakdown .time-col { color: var(--accent); }
+
+  /* Cost estimate table */
+  .cost-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+  .cost-table th, .cost-table td {
+    padding: 10px 14px;
+    text-align: right;
+    border: 1px solid var(--border);
+  }
+  .cost-table th {
+    background: var(--surface2);
+    color: var(--text2);
+    font-weight: 500;
+    text-align: center;
+  }
+  .cost-table td:first-child {
+    text-align: left;
+    font-weight: 500;
+  }
+  .cost-table .highlight { color: var(--green); font-weight: 600; }
+  .cost-table .compare { color: var(--text2); }
+
+  /* Octalysis table */
+  .octa-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+  .octa-table th, .octa-table td {
+    padding: 10px 14px;
+    text-align: left;
+    border: 1px solid var(--border);
+  }
+  .octa-table th {
+    background: var(--surface2);
+    color: var(--text2);
+    font-weight: 500;
+  }
+  .octa-table .hat-white { color: var(--green); }
+  .octa-table .hat-black { color: var(--yellow); }
+
+  .note {
+    margin-top: 12px;
+    font-size: 0.75rem;
+    color: var(--text2);
+    font-style: italic;
+  }
+
+  /* Exam info */
+  .exam-info {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .exam-info h3 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--green);
+    margin-bottom: 8px;
+  }
+  .exam-info p {
+    font-size: 0.8rem;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1><span>📊</span> Benchmark 儀表板</h1>
+    <p>即時測量各模式的回應速度、Token 用量與 API 成本</p>
+    <div class="nav">
+      <a href="/">← 回問答頁</a>
+      <a href="/concepts">概念星圖</a>
+      <a href="/exam">模擬考</a>
+    </div>
+  </header>
+
+  <!-- Section 1: Live test -->
+  <section>
+    <h2>試試看 — 即時 Benchmark</h2>
+    <div class="test-grid">
+      <div class="test-card" id="test-normal" onclick="runTest('normal')">
+        <h3>📝 Normal 問答</h3>
+        <div class="desc">extractKeywords → judge → generate → verify</div>
+        <div class="result" id="result-normal">點擊測試</div>
+      </div>
+      <div class="test-card" id="test-socratic" onclick="runTest('socratic')">
+        <h3>🎓 Socratic 導師</h3>
+        <div class="desc">extractKeywords → judge → socraticGuide</div>
+        <div class="result" id="result-socratic">點擊測試</div>
+      </div>
+      <div class="test-card" id="test-misconception" onclick="runTest('misconception')">
+        <h3>🔍 Misconception 診斷</h3>
+        <div class="desc">extractKeywords → judge → detectMisconception</div>
+        <div class="result" id="result-misconception">點擊測試</div>
+      </div>
+      <div class="test-card" style="cursor:default;border-color:var(--green)">
+        <h3>📋 Exam 考試</h3>
+        <div class="desc">純本地檔案篩選 + 字串比對</div>
+        <div class="result" style="color:var(--green)">零 API 成本 ✓</div>
+      </div>
+    </div>
+    <div class="breakdown" id="breakdown">
+      <table>
+        <thead>
+          <tr><th>Phase</th><th>Model</th><th>Time</th><th>Input</th><th>Output</th><th>Cost</th></tr>
+        </thead>
+        <tbody id="breakdownBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Section 2: Exam zero-cost -->
+  <section>
+    <div class="exam-info">
+      <h3>📋 Exam 模式 — 零 API 成本</h3>
+      <p>
+        考試生成和評分完全在本地完成，不呼叫 LLM API：<br>
+        • 題目生成：從 210 道題庫中按章節/難度篩選<br>
+        • 評分：答案字串比對<br>
+        • 解析：直接從筆記 frontmatter 讀取<br>
+        → 即使 1,000 位學生每天考 3 次，API 成本仍為 $0
+      </p>
+    </div>
+  </section>
+
+  <!-- Section 3: Cost estimate -->
+  <section>
+    <h2>成本估算表</h2>
+    <table class="cost-table">
+      <thead>
+        <tr>
+          <th>方案</th>
+          <th>100 學生<br>×5 問/天</th>
+          <th>500 學生<br>×10 問/天</th>
+          <th>1,000 學生<br>×20 問/天</th>
+        </tr>
+      </thead>
+      <tbody id="costBody">
+        <tr>
+          <td>本系統（Normal）</td>
+          <td class="highlight" id="cost-100-5">—</td>
+          <td class="highlight" id="cost-500-10">—</td>
+          <td class="highlight" id="cost-1000-20">—</td>
+        </tr>
+        <tr>
+          <td class="compare">ChatGPT Plus（$20/月/人）</td>
+          <td class="compare">$2,000/月</td>
+          <td class="compare">$10,000/月</td>
+          <td class="compare">$20,000/月</td>
+        </tr>
+        <tr>
+          <td class="compare">Google AI Studio（免費額度）</td>
+          <td class="compare">$0</td>
+          <td class="compare">超出免費</td>
+          <td class="compare">超出免費</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="note">* 本系統成本依實際 benchmark 數據計算，假設平均每問成本等於 Normal 模式單次成本。</p>
+    <p class="note">* Socratic 首輪成本略低於 Normal（少 verify），後續輪只有一次 evaluateResponse 呼叫，成本極低。</p>
+  </section>
+
+  <!-- Section 4: Octalysis mapping -->
+  <section>
+    <h2>八角框架 × 功能 × 成本</h2>
+    <table class="octa-table">
+      <thead>
+        <tr><th>功能</th><th>驅動力</th><th>帽色</th><th>單次成本</th><th>說明</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Normal 問答</td>
+          <td>CD3 創意授權</td>
+          <td class="hat-white">白帽</td>
+          <td id="octa-normal">—</td>
+          <td>自由探索式問答</td>
+        </tr>
+        <tr>
+          <td>Socratic 導師</td>
+          <td>CD3 創意授權</td>
+          <td class="hat-white">白帽</td>
+          <td id="octa-socratic">—</td>
+          <td>引導式問答，學生主導方向</td>
+        </tr>
+        <tr>
+          <td>概念診斷</td>
+          <td>CD2 成就感</td>
+          <td class="hat-white">白帽</td>
+          <td id="octa-misconception">—</td>
+          <td>找出概念錯誤，有針對性地修正</td>
+        </tr>
+        <tr>
+          <td>概念星圖</td>
+          <td>CD2 + CD7</td>
+          <td><span class="hat-white">白</span>+<span class="hat-black">黑</span></td>
+          <td style="color:var(--green)">$0</td>
+          <td>前端靜態視覺化，零 API 成本</td>
+        </tr>
+        <tr>
+          <td>每日挑戰</td>
+          <td>CD6 + CD7</td>
+          <td class="hat-black">黑帽</td>
+          <td style="color:var(--green)">$0</td>
+          <td>本地題庫篩選，零 API 成本</td>
+        </tr>
+        <tr>
+          <td>模擬考</td>
+          <td>CD2 成就感</td>
+          <td class="hat-white">白帽</td>
+          <td style="color:var(--green)">$0</td>
+          <td>本地生成+評分，零 API 成本</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+</div>
+
+<script>
+const testQuestions = {
+  normal: '光纖為什麼能傳輸訊號？',
+  socratic: '引導我理解全反射',
+  misconception: '全反射就是光照到鏡子被反射回來',
+};
+
+const collectedCosts = {};
+
+function runTest(mode) {
+  const card = document.getElementById('test-' + mode);
+  const resultEl = document.getElementById('result-' + mode);
+  if (card.classList.contains('running')) return;
+
+  card.classList.remove('done');
+  card.classList.add('running');
+  resultEl.innerHTML = '<span style="color:var(--yellow)">測試中...</span>';
+
+  const breakdownDiv = document.getElementById('breakdown');
+  const breakdownBody = document.getElementById('breakdownBody');
+  breakdownBody.innerHTML = '';
+  breakdownDiv.classList.remove('visible');
+
+  const question = testQuestions[mode];
+  const bodyPayload = { question, mode };
+  if (mode === 'socratic') bodyPayload.sessionId = 'bench-' + Date.now();
+
+  fetch('/api/ask', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(bodyPayload),
+  }).then(res => {
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    function read() {
+      reader.read().then(({ done, value }) => {
+        if (done) { finishTest(mode); return; }
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop();
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          try {
+            const msg = JSON.parse(line.slice(6));
+            if (msg.type === 'metrics') {
+              addBreakdownRow(msg.data);
+            } else if (msg.type === 'metrics_summary') {
+              showResult(mode, msg.data);
+            }
+          } catch {}
+        }
+        read();
+      });
+    }
+    read();
+  }).catch(err => {
+    resultEl.innerHTML = `<span style="color:var(--red)">錯誤：${err.message}</span>`;
+    card.classList.remove('running');
+  });
+}
+
+function addBreakdownRow(m) {
+  const body = document.getElementById('breakdownBody');
+  const div = document.getElementById('breakdown');
+  div.classList.add('visible');
+  const modelShort = m.model.includes('haiku') ? 'Haiku 4.5' : 'Sonnet 4.5';
+  body.innerHTML += `<tr>
+    <td>${m.phase}</td>
+    <td>${modelShort}</td>
+    <td class="time-col">${(m.durationMs/1000).toFixed(1)}s</td>
+    <td>${m.inputTokens.toLocaleString()}</td>
+    <td>${m.outputTokens.toLocaleString()}</td>
+    <td class="cost-col">$${m.costUSD.toFixed(4)}</td>
+  </tr>`;
+}
+
+function showResult(mode, data) {
+  const card = document.getElementById('test-' + mode);
+  const resultEl = document.getElementById('result-' + mode);
+  card.classList.remove('running');
+  card.classList.add('done');
+
+  const sec = (data.totalDurationMs / 1000).toFixed(1);
+  const cost = data.totalCostUSD.toFixed(4);
+  const tokens = data.totalInputTokens + data.totalOutputTokens;
+  resultEl.innerHTML = `<span class="time">${sec}s</span> · <span class="cost">$${cost}</span> · <span class="tokens">${tokens.toLocaleString()} tok</span>`;
+
+  // Store for cost table
+  collectedCosts[mode] = data.totalCostUSD;
+  updateCostTable();
+
+  // Update octalysis table
+  const octaEl = document.getElementById('octa-' + mode);
+  if (octaEl) octaEl.textContent = '$' + cost;
+}
+
+function finishTest(mode) {
+  const card = document.getElementById('test-' + mode);
+  if (card.classList.contains('running')) {
+    card.classList.remove('running');
+  }
+}
+
+function updateCostTable() {
+  const normalCost = collectedCosts.normal;
+  if (!normalCost) return;
+
+  const scenarios = [
+    { id: 'cost-100-5', students: 100, qPerDay: 5 },
+    { id: 'cost-500-10', students: 500, qPerDay: 10 },
+    { id: 'cost-1000-20', students: 1000, qPerDay: 20 },
+  ];
+  for (const s of scenarios) {
+    const monthly = normalCost * s.students * s.qPerDay * 30;
+    const el = document.getElementById(s.id);
+    el.textContent = '$' + monthly.toFixed(0) + '/月';
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+# Ch1 Broken Links Report
+# Generated: 2026-02-25
+# Total notes: 307
+# Broken links: 18
+
+[[SI制與基本單位]] (1 refs)
+  <- questions/Q-質量-質量定義-01.md
+
+[[三角測量]] (1 refs)
+  <- questions/Q-三角-河寬-01.md
+
+[[光學測微器]] (1 refs)
+  <- questions/Q-光學-刀片厚度-01.md
+
+[[內行星]] (1 refs)
+  <- questions/Q-三角-金星軌道比-01.md
+
+[[動能公式]] (1 refs)
+  <- formulas/質能互換公式.md
+
+[[埃拉托斯特尼]] (1 refs)
+  <- questions/Q-三角-地球周長-01.md
+
+[[太陽能量來源]] (1 refs)
+  <- formulas/質能互換公式.md
+
+[[排水法]] (2 refs)
+  <- questions/Q-體積-木塊體積-01.md
+  <- questions/Q-體積-石塊體積-01.md
+
+[[正弦定理]] (1 refs)
+  <- questions/Q-三角-山距離-01.md
+
+[[測遠儀]] (1 refs)
+  <- questions/Q-測遠-測遠儀數據-01.md
+
+[[潮汐現象]] (1 refs)
+  <- concepts/萬有引力定律.md
+
+[[狹義相對論]] (1 refs)
+  <- formulas/質能互換公式.md
+
+[[相似三角形]] (3 refs)
+  <- questions/Q-三角-鉛筆測距-01.md
+  <- questions/Q-三角-月球距離-01.md
+  <- questions/Q-三角-影子移動-01.md
+
+[[翁內斯]] (1 refs)
+  <- questions/Q-超導體-超導體敘述-01.md
+
+[[表面張力]] (1 refs)
+  <- questions/Q-體積-蒸餾水讀數-01.md
+
+[[重力]] (1 refs)
+  <- concepts/萬有引力定律.md
+
+[[重力加速度]] (1 refs)
+  <- questions/Q-質量-物理量不變-01.md
+
+[[針孔成像]] (1 refs)
+  <- questions/Q-三角-太陽像速度-01.md
+

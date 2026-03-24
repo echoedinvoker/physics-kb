@@ -10,6 +10,10 @@ tags:
   - question-type/{{QUESTION_TYPE}}
   - source/108-textbook
   - status/draft
+chapter: "{{CHAPTER}}"
+topic_path: "{{TOPIC_PATH}}"
+related_chapters: []
+context_header: "{{CONTEXT_HEADER}}"
 tests_concepts: ["[[{{CONCEPT_1}}]]", "[[{{CONCEPT_2}}]]"]
 answer: "{{ANSWER}}"
 ---
@@ -18,7 +22,7 @@ answer: "{{ANSWER}}"
 
 ## 題目
 
-{{QUESTION_TEXT}}
+{{FULL_QUESTION_TEXT}}
 
 (A) {{OPTION_A}}
 (B) {{OPTION_B}}

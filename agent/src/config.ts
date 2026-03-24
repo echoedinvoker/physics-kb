@@ -1,6 +1,6 @@
 import { resolve } from "path";
 
-export type SearchStrategyType = "grep" | "search" | "vsearch" | "query";
+export type SearchStrategyType = "grep" | "search" | "vsearch" | "query" | "hybrid";
 
 export interface Config {
   searchStrategy: SearchStrategyType;
@@ -12,7 +12,7 @@ export interface Config {
   qmdCollection: string;
 }
 
-const validStrategies = new Set(["grep", "search", "vsearch", "query"]);
+const validStrategies = new Set(["grep", "search", "vsearch", "query", "hybrid"]);
 
 export function loadConfig(): Config {
   const strategy = process.env.SEARCH_STRATEGY ?? "grep";

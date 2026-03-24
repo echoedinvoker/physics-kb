@@ -9,6 +9,10 @@ tags:
   - era/{{ERA}}
   - source/108-textbook
   - status/draft
+chapter: "{{CHAPTER}}"
+topic_path: "{{TOPIC_PATH}}"
+related_chapters: []
+context_header: "{{CONTEXT_HEADER}}"
 lifetime: "{{BIRTH}}-{{DEATH}}"
 nationality: {{NATIONALITY}}
 fields: [{{FIELD_1}}, {{FIELD_2}}]
