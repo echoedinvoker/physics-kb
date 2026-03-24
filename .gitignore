@@ -4,3 +4,5 @@ agent/bun.lock
 agent/.note-index.json
 .obsidian/
 .DS_Store
+.env
+agent/.env
