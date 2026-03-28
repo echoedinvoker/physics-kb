@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>學習數據 Dashboard — 物理知識庫</title>
+<script
+  async crossorigin="anonymous"
+  data-clerk-publishable-key="__CLERK_PK__"
+  src="https://profound-cobra-43.clerk.accounts.dev/npm/@clerk/clerk-js@5/dist/clerk.browser.js"
+></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #232733;
+    --border: #2e3345;
+    --text: #e2e4eb;
+    --text2: #8b8fa3;
+    --accent: #6c8cff;
+    --green: #4ade80;
+    --yellow: #fbbf24;
+    --red: #f87171;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+  header {
+    padding: 20px 32px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  header h1 { font-size: 1.3rem; font-weight: 600; }
+  header h1 span { color: var(--accent); }
+  .nav-links { display: flex; gap: 16px; }
+  .nav-links a { color: var(--accent); text-decoration: none; font-size: 0.85rem; }
+  .nav-links a:hover { text-decoration: underline; }
+
+  .tabs {
+    display: flex;
+    gap: 4px;
+    padding: 16px 32px 0;
+  }
+  .tab {
+    padding: 8px 20px;
+    border-radius: 8px 8px 0 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-bottom: none;
+    color: var(--text2);
+    cursor: pointer;
+    font-size: 0.85rem;
+  }
+  .tab.active { background: var(--bg); color: var(--accent); border-bottom: 2px solid var(--accent); }
+
+  main {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 32px 24px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+  }
+  .card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 12px; }
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .stat-box {
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+  }
+  .stat-num { font-size: 2rem; font-weight: 700; color: var(--accent); }
+  .stat-label { font-size: 0.75rem; color: var(--text2); margin-top: 4px; }
+  .stuck-list { list-style: none; }
+  .stuck-list li {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+  }
+  .stuck-list li:last-child { border-bottom: none; }
+  .error-bar {
+    display: inline-block;
+    height: 8px;
+    border-radius: 4px;
+    background: var(--red);
+    min-width: 4px;
+  }
+  canvas { width: 100%; height: 200px; }
+  .hidden { display: none; }
+  .auth-msg { text-align: center; padding: 80px 20px; color: var(--text2); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1><span>📊</span> 學習數據 Dashboard</h1>
+  <div class="nav-links">
+    <a href="/">問答</a>
+    <a href="/exam">模擬考</a>
+    <a href="/concepts">概念星圖</a>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('personal')">個人進度</div>
+  <div class="tab" id="globalTab" onclick="switchTab('global')" style="display:none">全局分析</div>
+</div>
+
+<main>
+  <div id="authMsg" class="auth-msg">請先登入以查看學習數據</div>
+
+  <div id="personalPanel" class="hidden">
+    <div class="stat-grid" id="statGrid"></div>
+
+    <div class="card">
+      <h3>概念掌握進度</h3>
+      <canvas id="masteryChart"></canvas>
+    </div>
+
+    <div class="card" id="stuckCard" class="hidden">
+      <h3>卡住的概念</h3>
+      <ul class="stuck-list" id="stuckList"></ul>
+    </div>
+  </div>
+
+  <div id="globalPanel" class="hidden">
+    <div class="card">
+      <h3>概念弱點 Top 10（全域錯誤率最高）</h3>
+      <ul class="stuck-list" id="weaknessList"></ul>
+    </div>
+
+    <div class="card">
+      <h3>概念轉銜分析（Edge Analysis）</h3>
+      <div style="font-size:0.8rem;color:var(--text2);margin-bottom:16px;line-height:1.8;background:var(--surface2);padding:12px 16px;border-radius:8px">
+        <p>分析概念圖中每條「前置概念 → 目標概念」路徑的教學效果。</p>
+        <p style="margin-top:6px"><strong style="color:var(--text)">答錯率</strong>：已掌握前置概念的學生，在目標概念上的答錯比率。<span style="color:var(--red)">越高代表這條學習路徑的銜接越差</span>，可能需要補充過渡教材。</p>
+        <p style="margin-top:4px"><strong style="color:var(--text)">有效性</strong>：掌握前置概念後答錯率降低了多少。<span style="color:var(--green)">綠色（> 30）= 前置概念很有幫助</span>；<span style="color:var(--yellow)">黃色（10-30）= 有幫助但不夠</span>；<span style="color:var(--red)">紅色（< 10）= 前置概念幾乎沒幫助，概念圖設計可能有問題</span>。</p>
+        <p style="margin-top:4px"><strong style="color:var(--text)">樣本數 (n)</strong>：這條路徑被評估的次數。n 越大數據越可信。</p>
+      </div>
+      <div style="margin-bottom:8px;display:flex;gap:8px;align-items:center">
+        <label style="font-size:0.8rem;color:var(--text2)">最小樣本：</label>
+        <select id="edgeMinSamples" onchange="loadEdgeAnalysis()" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:6px;font-size:0.8rem">
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="5" selected>5</option>
+          <option value="10">10</option>
+        </select>
+      </div>
+      <ul class="stuck-list" id="edgeList">
+        <li style="color:var(--text2)">載入中...</li>
+      </ul>
+    </div>
+  </div>
+</main>
+
+<script>
+let isAdminUser = false;
+
+async function authFetch(url, options = {}) {
+  const token = await window.Clerk?.session?.getToken();
+  if (token) options.headers = { ...options.headers, Authorization: 'Bearer ' + token };
+  return fetch(url, options);
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelector(`.tab[onclick*="${tab}"]`).classList.add('active');
+  document.getElementById('personalPanel').classList.toggle('hidden', tab !== 'personal');
+  document.getElementById('globalPanel').classList.toggle('hidden', tab !== 'global');
+  if (tab === 'global') loadGlobalData();
+}
+
+async function init() {
+  for (let i = 0; i < 30; i++) {
+    if (window.Clerk) break;
+    await new Promise(r => setTimeout(r, 200));
+  }
+  if (!window.Clerk) return;
+  try { await window.Clerk.load(); } catch { return; }
+  if (!window.Clerk.user) return;
+
+  document.getElementById('authMsg').classList.add('hidden');
+  document.getElementById('personalPanel').classList.remove('hidden');
+
+  // Load personal data
+  const [summaryRes, masteryRes] = await Promise.all([
+    authFetch('/api/events/summary'),
+    authFetch('/api/mastery'),
+  ]);
+  const summary = await summaryRes.json();
+  const mastery = await masteryRes.json();
+
+  // Stats grid
+  const grid = document.getElementById('statGrid');
+  grid.innerHTML = `
+    <div class="stat-box"><div class="stat-num">${summary.totalQueries || 0}</div><div class="stat-label">問答次數</div></div>
+    <div class="stat-box"><div class="stat-num">${summary.learningDays || 0}</div><div class="stat-label">學習天數</div></div>
+    <div class="stat-box"><div class="stat-num">${mastery.stats?.mastered || 0}/${mastery.stats?.total || 0}</div><div class="stat-label">已掌握概念</div></div>
+    <div class="stat-box"><div class="stat-num">${summary.avgAnswerTimeMs ? (summary.avgAnswerTimeMs / 1000).toFixed(1) + 's' : '-'}</div><div class="stat-label">平均答題時間</div></div>
+  `;
+
+  // Mastery chart (simple bar chart)
+  drawMasteryChart(mastery);
+
+  // Stuck concepts
+  if (summary.stuckConcepts?.length > 0) {
+    const card = document.getElementById('stuckCard');
+    card.classList.remove('hidden');
+    const list = document.getElementById('stuckList');
+    list.innerHTML = summary.stuckConcepts.map(s =>
+      `<li><span style="color:var(--red)">${esc(s.concept_id)}</span><span>${s.wrong_count} 次答錯</span></li>`
+    ).join('');
+  }
+
+  // Check admin
+  try {
+    const weakRes = await authFetch('/api/analytics/concept-weakness');
+    if (weakRes.ok) {
+      isAdminUser = true;
+      document.getElementById('globalTab').style.display = '';
+    }
+  } catch {}
+}
+
+function drawMasteryChart(mastery) {
+  const canvas = document.getElementById('masteryChart');
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = canvas.clientWidth * dpr;
+  canvas.height = 200 * dpr;
+  ctx.scale(dpr, dpr);
+
+  const w = canvas.clientWidth;
+  const h = 200;
+  const total = mastery.stats?.total || 1;
+  const mastered = mastery.stats?.mastered || 0;
+  const unlocked = (mastery.unlocked?.length || 0) - mastered;
+  const locked = total - mastered - Math.max(unlocked, 0);
+
+  const segments = [
+    { label: '已掌握', value: mastered, color: '#4ade80' },
+    { label: '已解鎖', value: Math.max(unlocked, 0), color: '#fbbf24' },
+    { label: '未解鎖', value: Math.max(locked, 0), color: '#2e3345' },
+  ];
+
+  // Draw stacked bar
+  const barY = 40, barH = 40;
+  let x = 20;
+  const barW = w - 40;
+  for (const seg of segments) {
+    const segW = (seg.value / total) * barW;
+    ctx.fillStyle = seg.color;
+    ctx.beginPath();
+    ctx.roundRect(x, barY, Math.max(segW, 0), barH, 4);
+    ctx.fill();
+    x += segW;
+  }
+
+  // Legend
+  ctx.font = '12px system-ui';
+  let lx = 20;
+  for (const seg of segments) {
+    ctx.fillStyle = seg.color;
+    ctx.fillRect(lx, barY + barH + 20, 12, 12);
+    ctx.fillStyle = '#8b8fa3';
+    ctx.fillText(`${seg.label} (${seg.value})`, lx + 18, barY + barH + 31);
+    lx += 130;
+  }
+}
+
+async function loadGlobalData() {
+  const weakRes = await authFetch('/api/analytics/concept-weakness');
+
+  if (weakRes.ok) {
+    const weakness = await weakRes.json();
+    const list = document.getElementById('weaknessList');
+    list.innerHTML = weakness.slice(0, 10).map(w => {
+      const pct = Math.round(w.errorRate * 100);
+      return `<li>
+        <span>${esc(w.concept_id)}</span>
+        <span><span class="error-bar" style="width:${pct}px"></span> ${pct}% 錯誤率 (${w.total} 次)</span>
+      </li>`;
+    }).join('');
+  }
+
+  loadEdgeAnalysis();
+}
+
+async function loadEdgeAnalysis() {
+  const minSamples = document.getElementById('edgeMinSamples')?.value ?? '5';
+  const res = await authFetch(`/api/analytics/edge-analysis?minSamples=${minSamples}&source=exam`);
+  const list = document.getElementById('edgeList');
+  if (!res.ok) { list.innerHTML = '<li style="color:var(--text2)">無法載入</li>'; return; }
+
+  const edges = await res.json();
+  if (edges.length === 0) {
+    list.innerHTML = '<li style="color:var(--text2)">尚無足夠數據（需要更多學生做模擬考）</li>';
+    return;
+  }
+
+  list.innerHTML = edges.map(e => {
+    const tfr = e.transitionFailureRate !== null ? Math.round(e.transitionFailureRate * 100) : null;
+    const eff = e.prerequisiteEffectiveness !== null ? Math.round(e.prerequisiteEffectiveness * 100) : null;
+    const effLabel = eff === null ? '資料不足' : eff > 30 ? '有效' : eff > 10 ? '待加強' : '幾乎無效';
+    const effColor = eff === null ? 'var(--text2)' : eff > 30 ? 'var(--green)' : eff > 10 ? 'var(--yellow)' : 'var(--red)';
+    return `<li style="flex-wrap:wrap;gap:4px">
+      <span>${esc(e.from)} → ${esc(e.to)}</span>
+      <span style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+        <span>答錯率 <strong>${tfr !== null ? tfr + '%' : '-'}</strong></span>
+        <span style="color:${effColor};font-weight:600;border:1px solid ${effColor};padding:1px 8px;border-radius:4px;font-size:0.75rem">${effLabel}${eff !== null ? '（降' + Math.abs(eff) + '%）' : ''}</span>
+        <span style="color:var(--text2);font-size:0.7rem">${e.total} 筆</span>
+      </span>
+    </li>`;
+  }).join('');
+}
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+init();
+</script>
+</body>
+</html>

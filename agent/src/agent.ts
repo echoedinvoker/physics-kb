@@ -219,6 +219,7 @@ export interface AgentResult {
   text: string;
   context?: Map<string, NoteContent>;
   targetConcepts?: string[];
+  conceptHits?: string[];
   metrics?: QueryMetrics;
 }
 
@@ -226,11 +227,14 @@ export async function answer(
   question: string,
   config: Config,
   search: SearchStrategy,
-  mode: AgentMode = "normal"
+  mode: AgentMode = "normal",
+  overlayNotes?: Array<{ title: string; body: string; related_concepts: string[] }>,
+  rawQuestion?: string
 ): Promise<AgentResult> {
   // Check if user is asking for random questions (normal mode only)
+  // Use rawQuestion (without enrichment context) to avoid false positives
   if (mode === "normal") {
-    const questionReq = detectQuestionRequest(question);
+    const questionReq = detectQuestionRequest(rawQuestion ?? question);
     if (questionReq) {
       log(`Question request detected: ${questionReq.count} questions${questionReq.difficulty ? ` (difficulty: ${questionReq.difficulty})` : ""}${questionReq.topic ? ` (topic: ${questionReq.topic})` : ""}`);
       const questions = await pickRandomQuestions(config.notesPath, questionReq.count, questionReq.difficulty, questionReq.topic);
@@ -304,6 +308,21 @@ export async function answer(
     }
   }
   log(`Loaded ${context.size} notes into context`);
+
+  // Inject overlay notes if provided
+  if (overlayNotes?.length) {
+    for (const n of overlayNotes) {
+      const key = `overlay:${n.title}`;
+      context.set(key, {
+        title: `[個人筆記] ${n.title}`,
+        body: n.body,
+        frontmatter: { tags: [], related_concepts: n.related_concepts },
+        path: key,
+        links: [],
+      });
+    }
+    log(`Added ${overlayNotes.length} overlay notes`);
+  }
 
   // 3. Judge → Follow links loop (with traversal budget)
   const MAX_ROUNDS = 3;
@@ -411,5 +430,18 @@ export async function answer(
     result = genResult.text;
   }
 
-  return { text: result, metrics: buildQueryMetrics() };
+  // Extract concept hits from context
+  const conceptHits = new Set<string>();
+  for (const note of context.values()) {
+    // Concept notes have their title as concept name
+    const tags = (note.frontmatter.tags as string[]) ?? [];
+    if (tags.some((t) => t.startsWith("topic/"))) {
+      conceptHits.add(note.title);
+    }
+    // Questions reference concepts via tests_concepts
+    const tc = (note.frontmatter.tests_concepts as string[]) ?? [];
+    for (const c of tc) conceptHits.add(c.replace(/\[\[/g, "").replace(/\]\]/g, ""));
+  }
+
+  return { text: result, conceptHits: [...conceptHits], metrics: buildQueryMetrics() };
 }

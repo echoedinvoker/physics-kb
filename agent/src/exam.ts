@@ -9,6 +9,7 @@ export interface ExamQuestion {
   type: string;
   chapter: string;
   difficulty: string;
+  isMultiSelect?: boolean;
 }
 
 export interface ExamState {
@@ -35,16 +36,83 @@ async function loadQuestions(notesPath: string): Promise<NoteContent[]> {
   return notes;
 }
 
+/** Strip [[]] wiki-link brackets from concept names */
+export function stripWikiLinks(s: string): string {
+  return s.replace(/\[\[/g, "").replace(/\]\]/g, "");
+}
+
+export async function generateConceptPractice(
+  notesPath: string,
+  conceptId: string,
+  count: number = 5
+): Promise<{ questions: ExamQuestion[]; state: ExamState }> {
+  const allNotes = await loadQuestions(notesPath);
+  const filtered = allNotes.filter((n) => {
+    const testsConcepts = (n.frontmatter.tests_concepts as string[]) ?? [];
+    return testsConcepts.some((c) => stripWikiLinks(c) === conceptId);
+  });
+
+  if (filtered.length === 0) {
+    return { questions: [], state: { questions: [], createdAt: Date.now(), timeLimit: 1200 } };
+  }
+
+  // Shuffle
+  for (let i = filtered.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [filtered[i], filtered[j]] = [filtered[j], filtered[i]];
+  }
+
+  const selected = filtered.slice(0, Math.min(count, filtered.length));
+  const questions: ExamQuestion[] = [];
+  const stateQuestions: ExamState["questions"] = [];
+
+  for (const note of selected) {
+    const tags = (note.frontmatter.tags as string[]) ?? [];
+    const questionMatch = note.body.match(/##\s*題目\s*\n([\s\S]*?)(?=\n##\s*答案)/);
+    const content = questionMatch ? questionMatch[1].trim() : note.body.split("\n").slice(0, 5).join("\n");
+    let optionLines = content.match(/^\s*\(?[A-E][).）]\s*.+$/gm) ?? [];
+    if (optionLines.length <= 1) {
+      const inlineMatch = content.match(/\(?[A-E][).）][^(（]+/g);
+      if (inlineMatch && inlineMatch.length >= 2) optionLines = inlineMatch.map((s) => s.trim());
+    }
+    const qType = tags.find((t) => t.startsWith("question-type/"))?.replace("question-type/", "") ?? "unknown";
+    const chapter = (note.frontmatter.chapter as string) ?? "";
+    const diff = tags.find((t) => t.startsWith("difficulty/"))?.replace("difficulty/", "") ?? "";
+    const answer = (note.frontmatter.answer as string) ?? "";
+    const analysisMatch = note.body.match(/##\s*解析\s*\n([\s\S]*?)(?=\n##|$)/);
+    const analysis = analysisMatch ? analysisMatch[1].trim() : "";
+    const testsConcepts = (note.frontmatter.tests_concepts as string[]) ?? [];
+    const relatedConcepts = testsConcepts.map(stripWikiLinks);
+
+    const isMulti = answer.length > 1 && /^[A-E]+$/i.test(answer);
+    questions.push({ id: note.title, content, options: optionLines.length > 0 ? optionLines : undefined, type: qType, chapter, difficulty: diff, isMultiSelect: isMulti || undefined });
+    stateQuestions.push({ id: note.title, answer, analysis, relatedConcepts });
+  }
+
+  return { questions, state: { questions: stateQuestions, createdAt: Date.now(), timeLimit: 1200 } };
+}
+
 export async function generateExam(
   notesPath: string,
   chapters: string[],
   difficulty: string,
   count: number,
-  timeLimit: number
+  timeLimit: number,
+  unlockedConcepts?: string[]
 ): Promise<{ questions: ExamQuestion[]; state: ExamState }> {
   const allNotes = await loadQuestions(notesPath);
 
   let candidates = allNotes;
+
+  // Filter by unlocked concepts (prerequisite-aware mode)
+  if (unlockedConcepts) {
+    const unlocked = new Set(unlockedConcepts);
+    const filtered = candidates.filter((n) => {
+      const testsConcepts = (n.frontmatter.tests_concepts as string[]) ?? [];
+      return testsConcepts.some((c) => unlocked.has(stripWikiLinks(c)));
+    });
+    if (filtered.length > 0) candidates = filtered;
+  }
 
   // Filter by chapter
   if (chapters.length > 0) {
@@ -108,10 +176,9 @@ export async function generateExam(
 
     // Extract related concepts from tests_concepts
     const testsConcepts = (note.frontmatter.tests_concepts as string[]) ?? [];
-    const relatedConcepts = testsConcepts.map((c) =>
-      c.replace(/\[\[/g, "").replace(/\]\]/g, "")
-    );
+    const relatedConcepts = testsConcepts.map(stripWikiLinks);
 
+    const isMulti = answer.length > 1 && /^[A-E]+$/i.test(answer);
     questions.push({
       id,
       content,
@@ -119,6 +186,7 @@ export async function generateExam(
       type: qType,
       chapter,
       difficulty: diff,
+      isMultiSelect: isMulti || undefined,
     });
 
     stateQuestions.push({ id, answer, analysis, relatedConcepts });

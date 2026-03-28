@@ -199,6 +199,8 @@
   <h1><span>🌌</span> 概念星圖</h1>
   <div class="nav">
     <a href="/">← 問答</a>
+    <a href="/exam">模擬考</a>
+    <a href="/scan">掃描考卷</a>
     <a href="/benchmark">Benchmark</a>
   </div>
   <input type="text" class="search-box" id="search" placeholder="搜尋概念..." oninput="onSearch(this.value)">
@@ -257,6 +259,7 @@ window.addEventListener('resize', resize);
 
 // Load data
 let masteryData = null;
+let userNotesCounts = {}; // concept → count
 
 async function authFetch(url, options = {}) {
   const token = await window.Clerk?.session?.getToken();
@@ -274,8 +277,19 @@ async function loadMasteryForGraph() {
     try {
       await window.Clerk.load();
       if (window.Clerk.user) {
-        const res = await authFetch('/api/mastery');
-        masteryData = await res.json();
+        const [masteryRes, notesRes] = await Promise.all([
+          authFetch('/api/mastery'),
+          authFetch('/api/notes'),
+        ]);
+        masteryData = await masteryRes.json();
+        const userNotes = await notesRes.json();
+        // Count notes per concept
+        userNotesCounts = {};
+        for (const note of (Array.isArray(userNotes) ? userNotes : [])) {
+          for (const c of (note.related_concepts || [])) {
+            userNotesCounts[c] = (userNotesCounts[c] || 0) + 1;
+          }
+        }
         applyMasteryColors();
         draw();
       }
@@ -288,18 +302,19 @@ function applyMasteryColors() {
   const unlocked = new Set(masteryData.unlocked || []);
   for (const n of nodes) {
     const m = masteryData.mastery?.[n.name];
-    if (m?.isMastered) {
+    if (!unlocked.has(n.name)) {
+      // Prerequisites not met → locked, regardless of any prior attempts
+      n.color = '#6c8cff';
+      n.masteryStatus = 'locked';
+    } else if (m?.isMastered) {
       n.color = '#4ade80'; // green = mastered
       n.masteryStatus = 'mastered';
     } else if (m?.correctCount > 0) {
       n.color = '#fbbf24'; // yellow = in progress
       n.masteryStatus = 'learning';
-    } else if (unlocked.has(n.name)) {
+    } else {
       n.color = '#8b8fa3'; // gray = unlocked but not started
       n.masteryStatus = 'unlocked';
-    } else {
-      n.color = '#6c8cff'; // blue = locked
-      n.masteryStatus = 'locked';
     }
   }
 }
@@ -676,7 +691,9 @@ function showPanel(idx) {
     ${masteryHtml}
     ${prereqs ? `<div class="panel-section"><h4>前置概念</h4>${prereqs}</div>` : '<div class="panel-section"><h4>前置概念</h4><span style="color:var(--green);font-size:0.8rem">無（可直接學習）</span></div>'}
     ${dependents ? `<div class="panel-section"><h4>延伸概念</h4>${dependents}</div>` : ''}
+    ${(userNotesCounts[n.name] || 0) > 0 ? `<div class="panel-section"><h4>📝 我的筆記（${userNotesCounts[n.name]} 則）</h4></div>` : ''}
     <a class="ask-btn" href="/?q=${encodeURIComponent('什麼是' + n.name + '？')}" target="_blank">問問看 →</a>
+    ${(!masteryData || (n.masteryStatus || 'unlocked') !== 'locked') ? `<a class="ask-btn" href="/exam?concept=${encodeURIComponent(n.name)}" target="_blank" style="background:var(--green);color:#000;margin-top:8px">🎯 練習這個概念</a>` : ''}
   `;
 }
 

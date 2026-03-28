@@ -49,7 +49,7 @@
     max-width: 800px;
     width: 100%;
     margin: 0 auto;
-    padding: 32px 24px;
+    padding: 32px 24px 80px;
   }
 
   /* Setup panel */
@@ -272,7 +272,7 @@
 
 <header>
   <h1><span>&#x1F4DD;</span> 物理知識庫 模擬考</h1>
-  <p>從 210 題題庫組卷 &bull; 計時作答 &bull; 自動評分 &bull; <a href="/">回到問答</a></p>
+  <p>從 210 題題庫組卷 &bull; 計時作答 &bull; 自動評分 &bull; <a href="/">問答</a> &bull; <a href="/concepts">概念星圖</a> &bull; <a href="/scan">掃描考卷</a></p>
 </header>
 
 <main>
@@ -310,7 +310,23 @@
         <span class="count-val" id="timeVal">20</span> 分鐘
       </div>
     </div>
+    <div class="setup-row" id="prereqRow" style="display:none">
+      <label style="min-width:60px"></label>
+      <div style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.85rem;background:var(--surface);border:1px solid var(--border);padding:8px 14px;border-radius:8px" onclick="document.getElementById('prereqToggle').click()">
+        <input type="checkbox" id="prereqToggle" style="accent-color:var(--accent)" onclick="event.stopPropagation()">
+        <span>按我的進度出題（只出已解鎖概念）</span>
+      </div>
+    </div>
     <button class="start-btn" id="startBtn" onclick="startExam()">開始考試</button>
+  </div>
+
+  <!-- Concept practice mode header (hidden by default) -->
+  <div id="practiceHeader" class="hidden" style="margin-bottom:24px;text-align:center">
+    <h2 id="practiceTitle" style="font-size:1.2rem;color:var(--accent)"></h2>
+    <p style="color:var(--text2);font-size:0.85rem;margin-top:6px">
+      <a href="/exam" style="color:var(--accent);text-decoration:none">← 回模擬考</a> &bull;
+      <a href="/concepts" style="color:var(--accent);text-decoration:none">概念星圖</a>
+    </p>
   </div>
 
   <!-- Exam -->
@@ -332,8 +348,50 @@ let answers = {};
 let timerInterval = null;
 let remainingSeconds = 0;
 let noteMap = {};
+let conceptMode = null; // set from URL ?concept=X
+let examStartTime = 0;
+// Learning session for event tracking
+const learningSessionId = sessionStorage.getItem('learningSessionId') || (() => {
+  const id = crypto.randomUUID();
+  sessionStorage.setItem('learningSessionId', id);
+  return id;
+})();
 
 fetch('/api/note-map').then(r => r.json()).then(m => { noteMap = m; });
+
+// Check for concept practice mode
+(function checkConceptMode() {
+  const params = new URLSearchParams(location.search);
+  const concept = params.get('concept');
+  if (concept) {
+    conceptMode = concept;
+    document.getElementById('setup').classList.add('hidden');
+    const header = document.getElementById('practiceHeader');
+    header.classList.remove('hidden');
+    document.getElementById('practiceTitle').textContent = `🎯 概念練習：${concept}`;
+    startConceptPractice(concept);
+  }
+})();
+
+async function startConceptPractice(concept) {
+  try {
+    const res = await authFetch('/api/concept/practice', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ conceptId: concept, count: 5 }),
+    });
+    const data = await res.json();
+    if (data.error) { alert(data.error); return; }
+    examId = data.examId;
+    questions = data.questions;
+    answers = {};
+    examStartTime = Date.now();
+    renderExam();
+    startTimer(data.timeLimit);
+  } catch (err) {
+    alert('出題失敗：' + err.message);
+  }
+}
 
 async function startExam() {
   const btn = document.getElementById('startBtn');
@@ -344,17 +402,21 @@ async function startExam() {
   const diff = document.querySelector('#diffRadios input:checked')?.value ?? '';
   const count = parseInt(document.getElementById('countSlider').value);
   const timeMinutes = parseInt(document.getElementById('timeSlider').value);
+  const respectPrerequisites = document.getElementById('prereqToggle')?.checked ?? false;
 
   try {
-    const res = await fetch('/api/exam/generate', {
+    const fetchFn = respectPrerequisites ? authFetch : fetch;
+    const res = await fetchFn('/api/exam/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chapters, difficulty: diff, count, timeLimit: timeMinutes * 60 }),
+      body: JSON.stringify({ chapters, difficulty: diff, count, timeLimit: timeMinutes * 60, respectPrerequisites }),
     });
     const data = await res.json();
+    if (data.error) { alert(data.error); btn.disabled = false; btn.textContent = '開始考試'; return; }
     examId = data.examId;
     questions = data.questions;
     answers = {};
+    examStartTime = Date.now();
     renderExam();
     startTimer(timeMinutes * 60);
   } catch (err) {
@@ -383,6 +445,9 @@ function renderExam() {
       <div class="question-body">${bodyHtml}</div>`;
 
     if (isChoice && q.options && q.options.length > 0) {
+      if (q.isMultiSelect) {
+        html += `<div style="font-size:0.8rem;color:var(--yellow);margin-bottom:8px">複選題（可選多個答案）</div>`;
+      }
       html += `<ul class="option-list" data-qid="${q.id}">`;
       q.options.forEach(opt => {
         const m = opt.match(/[A-E]/);
@@ -440,6 +505,9 @@ function updateTimer() {
   }
   if (window.Clerk) {
     try { await window.Clerk.load(); } catch {}
+    if (window.Clerk.user) {
+      document.getElementById('prereqRow').style.display = '';
+    }
   }
 })();
 
@@ -465,16 +533,38 @@ async function submitExam() {
     const result = await res.json();
     renderResults(result);
 
-    // Fire-and-forget: batch record attempts to Supabase
+    // Fire-and-forget: record attempts only in concept practice mode (affects mastery/unlock)
+    // Exam mode does NOT write attempts — only concept practice from star map unlocks nodes
     if (window.Clerk?.user && result.details) {
-      const attempts = result.details.map(d => ({
-        questionId: d.id,
-        isCorrect: d.isCorrect,
+      if (conceptMode) {
+        const attempts = result.details.map(d => ({
+          questionId: d.id,
+          isCorrect: d.isCorrect,
+        }));
+        authFetch('/api/attempts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ attempts }),
+        }).catch(() => {});
+      }
+
+      // Track learning events
+      const totalTimeMs = Date.now() - examStartTime;
+      const avgTimeMs = Math.round(totalTimeMs / result.details.length);
+      const events = result.details.map(d => ({
+        event_type: d.isCorrect ? 'answer_correct' : 'answer_wrong',
+        concept_id: d.relatedConcepts?.[0] || null,
+        metadata: {
+          question_id: d.id,
+          time_spent_ms: avgTimeMs,
+          ...(d.isCorrect ? {} : { selected_answer: d.submitted, correct_answer: d.correct }),
+        },
+        session_id: learningSessionId,
       }));
-      authFetch('/api/attempts', {
+      authFetch('/api/events', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ attempts }),
+        body: JSON.stringify({ events }),
       }).catch(() => {});
     }
   } catch (err) {

@@ -254,6 +254,311 @@
   }
   .answer a.note-link:hover { opacity: 0.8; }
 
+  /* Highlight toolbar (mockup) */
+  .highlight-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-size: 0.8rem;
+  }
+  .hl-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text2);
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.15s;
+  }
+  .hl-btn:hover { border-color: var(--accent); color: var(--text); }
+  .hl-btn.active { border-color: var(--yellow); color: var(--yellow); }
+  .hl-color {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .hl-color:hover, .hl-color.active { border-color: var(--text); }
+  .hl-color-yellow { background: #fbbf24; }
+  .hl-color-green { background: #4ade80; }
+  .hl-color-blue { background: #60a5fa; }
+  .hl-sep {
+    width: 1px;
+    height: 18px;
+    background: var(--border);
+    margin: 0 4px;
+  }
+  mark.hl-yellow { background: rgba(251, 191, 36, 0.25); color: var(--text); border-radius: 2px; padding: 1px 2px; }
+  mark.hl-green { background: rgba(74, 222, 128, 0.25); color: var(--text); border-radius: 2px; padding: 1px 2px; }
+  mark.hl-blue { background: rgba(96, 165, 250, 0.25); color: var(--text); border-radius: 2px; padding: 1px 2px; }
+
+  /* Annotation (mockup) */
+  .annotation {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 0;
+    position: relative;
+  }
+  .annotation-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.6rem;
+    font-weight: 700;
+    cursor: pointer;
+    vertical-align: super;
+    margin-left: 2px;
+    flex-shrink: 0;
+    line-height: 1;
+    box-shadow: 0 0 6px rgba(108, 140, 255, 0.4);
+  }
+  .annotation-card {
+    position: relative;
+    margin: 8px 0;
+    padding: 10px 14px;
+    background: #1e2a3a;
+    border: 1px solid rgba(108, 140, 255, 0.3);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: var(--text);
+  }
+  .annotation-card::before {
+    content: '✏️ 我的筆記';
+    display: block;
+    font-size: 0.7rem;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 4px;
+    letter-spacing: 0.03em;
+  }
+  .annotation-card .anno-time {
+    font-size: 0.65rem;
+    color: var(--text2);
+    margin-top: 4px;
+  }
+
+  /* Add annotation button (inline) */
+  .add-anno-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    border: 1px dashed var(--border);
+    background: transparent;
+    color: var(--text2);
+    font-size: 0.7rem;
+    cursor: pointer;
+    margin-left: 4px;
+    transition: all 0.15s;
+    vertical-align: middle;
+  }
+  .add-anno-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Floating note generation button */
+  .fab-notes {
+    position: fixed;
+    bottom: 90px;
+    right: 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, var(--accent), #8b5cf6);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(108, 140, 255, 0.4);
+    transition: all 0.2s;
+    z-index: 100;
+    animation: fabPulse 2s ease-in-out infinite;
+  }
+  .fab-notes:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(108, 140, 255, 0.5); }
+  @keyframes fabPulse {
+    0%, 100% { box-shadow: 0 4px 20px rgba(108, 140, 255, 0.4); }
+    50% { box-shadow: 0 4px 28px rgba(108, 140, 255, 0.6); }
+  }
+  .fab-badge {
+    background: rgba(255,255,255,0.25);
+    padding: 2px 7px;
+    border-radius: 8px;
+    font-size: 0.7rem;
+  }
+
+  /* Note generation panel (slide-in overlay) */
+  .note-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 200;
+    backdrop-filter: blur(4px);
+  }
+  .note-overlay.open { display: flex; justify-content: center; align-items: flex-start; padding-top: 40px; }
+  .note-panel {
+    width: 720px;
+    max-height: calc(100vh - 80px);
+    overflow-y: auto;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  .note-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .note-panel-header h2 { font-size: 1.1rem; font-weight: 600; }
+  .note-panel-close {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+  .note-panel-close:hover { border-color: var(--red); color: var(--red); }
+  .note-panel-body { padding: 24px; }
+  .note-panel-body h3 { font-size: 1rem; font-weight: 600; margin: 20px 0 10px; }
+  .note-panel-body h3:first-child { margin-top: 0; }
+  .note-panel-body p, .note-panel-body li { font-size: 0.9rem; line-height: 1.8; margin: 6px 0; }
+  .note-panel-body ul { margin-left: 20px; }
+
+  /* Source badges */
+  .src-badge {
+    display: inline-block;
+    font-size: 0.65rem;
+    padding: 2px 8px;
+    border-radius: 8px;
+    font-weight: 600;
+    vertical-align: middle;
+    margin-left: 6px;
+    letter-spacing: 0.02em;
+  }
+  .src-badge.src-material {
+    background: rgba(108, 140, 255, 0.15);
+    color: var(--accent);
+    border: 1px solid rgba(108, 140, 255, 0.3);
+  }
+  .src-badge.src-student {
+    background: rgba(139, 92, 246, 0.15);
+    color: #a78bfa;
+    border: 1px solid rgba(139, 92, 246, 0.3);
+  }
+  .src-badge.src-ai {
+    background: rgba(74, 222, 128, 0.15);
+    color: var(--green);
+    border: 1px solid rgba(74, 222, 128, 0.3);
+  }
+
+  /* Note section blocks */
+  .note-section {
+    padding: 14px 16px;
+    border-radius: 10px;
+    margin: 12px 0;
+  }
+  .note-section.from-material {
+    background: rgba(108, 140, 255, 0.05);
+    border: 1px solid rgba(108, 140, 255, 0.15);
+  }
+  .note-section.from-student {
+    background: rgba(139, 92, 246, 0.05);
+    border: 1px solid rgba(139, 92, 246, 0.15);
+  }
+  .note-section.from-ai {
+    background: rgba(74, 222, 128, 0.05);
+    border: 1px solid rgba(74, 222, 128, 0.15);
+  }
+  .note-section-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .note-section-label.material-label { color: var(--accent); }
+  .note-section-label.student-label { color: #a78bfa; }
+  .note-section-label.ai-label { color: var(--green); }
+
+  .note-panel-actions {
+    display: flex;
+    gap: 10px;
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+  }
+  .note-panel-actions button {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: none;
+  }
+  .note-action-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+  .note-action-primary:hover { background: var(--accent2); }
+  .note-action-secondary {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border) !important;
+  }
+  .note-action-secondary:hover { border-color: var(--accent) !important; }
+
+  /* Legend */
+  .note-legend {
+    display: flex;
+    gap: 16px;
+    padding: 12px 16px;
+    background: var(--surface);
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 0.75rem;
+    color: var(--text2);
+  }
+  .note-legend-item { display: flex; align-items: center; gap: 6px; }
+  .note-legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
   /* KaTeX blocks */
   .answer .katex-display { margin: 16px 0; overflow-x: auto; }
 
@@ -558,7 +863,7 @@
 
 <header>
   <h1><span>&#x1F52C;</span> 物理知識庫 AI 助教</h1>
-  <p>高中 108 課綱物理 &bull; 342 篇原子化筆記 &bull; Agentic RAG &bull; <a href="/exam" style="color:var(--accent);text-decoration:none">模擬考</a> &bull; <a href="/concepts" style="color:var(--accent);text-decoration:none">概念星圖</a> &bull; <a href="/benchmark" style="color:var(--accent);text-decoration:none">Benchmark</a></p>
+  <p>高中 108 課綱物理 &bull; 342 篇原子化筆記 &bull; Agentic RAG &bull; <a href="/exam" style="color:var(--accent);text-decoration:none">模擬考</a> &bull; <a href="/concepts" style="color:var(--accent);text-decoration:none">概念星圖</a> &bull; <a href="/scan" style="color:var(--accent);text-decoration:none">掃描考卷</a> &bull; <a href="/benchmark" style="color:var(--accent);text-decoration:none">Benchmark</a> &bull; <a href="/dashboard" id="dashboardLink" style="color:var(--accent);text-decoration:none;display:none">📊 Dashboard</a></p>
   <div id="user-button"></div>
   <button id="sign-in-btn" style="display:none" onclick="window.Clerk?.openSignIn()">登入</button>
 </header>
@@ -683,6 +988,8 @@ async function initClerk() {
         window.Clerk.mountUserButton(ub);
       }
       if (!masteryLoaded) { masteryLoaded = true; loadMasteryPanel(); }
+      const dl = document.getElementById('dashboardLink');
+      if (dl) dl.style.display = 'inline';
     } else {
       document.getElementById('sign-in-btn').style.display = '';
       document.getElementById('user-button').innerHTML = '';
@@ -698,6 +1005,12 @@ initClerk().catch(e => console.error('Clerk init error:', e));
 let noteMap = {};
 let currentMode = 'normal';
 let sessionId = null;
+// Learning session for event tracking
+const learningSessionId = sessionStorage.getItem('learningSessionId') || (() => {
+  const id = crypto.randomUUID();
+  sessionStorage.setItem('learningSessionId', id);
+  return id;
+})();
 
 const normalExamples = [
   '光纖為什麼能傳輸訊號？',
@@ -742,6 +1055,7 @@ function setMode(mode) {
   btn.disabled = false;
   questionHistory = [];
   shownQuestions = [];
+  document.getElementById('fabNotes').style.display = 'none';
   // Update examples
   const ex = document.getElementById('examples');
   ex.style.display = '';
@@ -769,6 +1083,8 @@ function ask(text) {
   busy = true;
   btn.disabled = true;
   input.value = '';
+  const queryStartTime = Date.now();
+  let lastConceptHits = [];
 
   // Hide examples after first question
   const ex = document.getElementById('examples');
@@ -820,8 +1136,22 @@ function ask(text) {
   const answerEl = el('div', 'answer');
   const metricsEl = el('div', 'metrics-panel');
   metricsEl.style.display = 'none';
+  const hlToolbar = el('div', 'highlight-toolbar');
+  hlToolbar.style.display = 'none';
+  hlToolbar.innerHTML = `
+    <span style="color:var(--text2)">📌 畫重點</span>
+    <div class="hl-sep"></div>
+    <div class="hl-color hl-color-yellow active" title="黃色螢光筆"></div>
+    <div class="hl-color hl-color-green" title="綠色螢光筆"></div>
+    <div class="hl-color hl-color-blue" title="藍色螢光筆"></div>
+    <div class="hl-sep"></div>
+    <button class="hl-btn" title="加入註釋">✏️ 加註釋</button>
+    <div class="hl-sep"></div>
+    <button class="hl-btn">🗑 清除</button>
+  `;
   const body = el('div', 'msg-body');
   body.appendChild(thinkingEl);
+  body.appendChild(hlToolbar);
   body.appendChild(answerEl);
   body.appendChild(metricsEl);
   const isTutor = currentMode === 'socratic';
@@ -860,14 +1190,35 @@ function ask(text) {
               logsEl.innerHTML += colored + '\n';
               logsWrap.scrollTop = logsWrap.scrollHeight;
               scrollDown();
+            } else if (msg.type === 'concept_hits') {
+              lastConceptHits = msg.data || [];
             } else if (msg.type === 'answer') {
               renderAnswer(answerEl, msg.text);
+              // hlToolbar hidden (no functional highlight feature yet)
+              // mockHighlights removed (was V1 mockup)
+              document.getElementById('fabNotes').style.display = 'flex';
               thinkingEl.classList.add('thinking-done');
               thinkingEl.classList.remove('open');
               questionHistory.push(question);
               // Extract Q-IDs from answer to prevent duplicates
               const qIds = msg.text.match(/Q-[\w\u4e00-\u9fff]+-[\w\u4e00-\u9fff]+-\d+/g) || [];
               for (const id of qIds) { if (!shownQuestions.includes(id)) shownQuestions.push(id); }
+              // Track query event
+              if (window.Clerk?.user) {
+                const responseTime = Date.now() - queryStartTime;
+                // Extract [[概念]] links from answer as concept hits (fallback for subprocess mode)
+                const conceptLinks = (msg.text.match(/\[\[([^\]]+)\]\]/g) || []).map(l => l.slice(2, -2));
+                const hits = lastConceptHits.length > 0 ? lastConceptHits : conceptLinks;
+                authFetch('/api/events', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ events: [{
+                    event_type: 'query',
+                    metadata: { question, mode: currentMode, response_time_ms: responseTime, concept_hits: hits },
+                    session_id: learningSessionId,
+                  }] }),
+                }).catch(() => {});
+              }
               scrollDown();
             } else if (msg.type === 'metrics_summary') {
               renderMetricsPanel(metricsEl, msg.data);
@@ -904,9 +1255,49 @@ function colorLog(text) {
   return t;
 }
 
+function mockHighlights(container) {
+  // Mockup: simulate selective user highlights (not every occurrence)
+  const hlKeywords = [
+    { re: /等加速度運動/g, cls: 'hl-yellow' },
+    { re: /自由落體/g, cls: 'hl-yellow' },
+    { re: /加速度/g, cls: 'hl-yellow' },
+    { re: /位移/g, cls: 'hl-green' },
+    { re: /v-t\s*圖/g, cls: 'hl-green' },
+    { re: /x-t\s*圖/g, cls: 'hl-green' },
+    { re: /牛頓第二定律/g, cls: 'hl-yellow' },
+    { re: /F\s*=\s*ma/g, cls: 'hl-yellow' },
+  ];
+  // Only highlight in the first few paragraphs/items to look selective
+  const nodes = [...container.querySelectorAll('p, li')].slice(0, 5);
+  nodes.forEach(node => {
+    let html = node.innerHTML;
+    for (const { re, cls } of hlKeywords) {
+      html = html.replace(re, `<mark class="${cls}">$&</mark>`);
+    }
+    node.innerHTML = html;
+  });
+
+  // Inject a mock annotation after the second paragraph
+  const paragraphs = container.querySelectorAll('p');
+  if (paragraphs.length >= 2) {
+    const annoCard = document.createElement('div');
+    annoCard.className = 'annotation-card';
+    annoCard.innerHTML = `所以煞車的時候加速度是負的？那如果倒車煞車呢？→ 對，加速度方向要看速度變化的方向，不是看車的移動方向！<div class="anno-time">剛剛 · 第 2 輪問答時新增</div>`;
+    paragraphs[1].after(annoCard);
+  }
+  if (paragraphs.length >= 4) {
+    const annoCard2 = document.createElement('div');
+    annoCard2.className = 'annotation-card';
+    annoCard2.innerHTML = `v-t 圖的面積是位移，斜率是加速度——這兩個要一起記！<div class="anno-time">剛剛 · 畫重點時新增</div>`;
+    paragraphs[3].after(annoCard2);
+  }
+}
+
 function renderAnswer(container, md) {
+  // Pre-process: convert [[wiki-links]] to plain text (linkifyNotes will add links later)
+  let processed = (md || '').replace(/\[\[([^\]]+)\]\]/g, '$1');
   // Render markdown
-  let html = marked.parse(md || '');
+  let html = marked.parse(processed);
   container.innerHTML = html;
 
   // Render LaTeX: display math $$...$$
@@ -1168,5 +1559,213 @@ function renderMetricsPanel(container, data) {
 
 input.focus();
 </script>
+
+<!-- Floating "Generate Notes" button -->
+<button class="fab-notes" id="fabNotes" style="display:none" onclick="openNotePanel()">
+  📝 整合學習筆記
+  <span class="fab-badge"></span>
+</button>
+
+<!-- Note generation overlay -->
+<div class="note-overlay" id="noteOverlay">
+  <div class="note-panel">
+    <div class="note-panel-header">
+      <h2>📝 AI 學習筆記整合</h2>
+      <button class="note-panel-close" onclick="document.getElementById('noteOverlay').classList.remove('open')">✕</button>
+    </div>
+    <div class="note-panel-body" id="notePanelBody">
+      <p style="color:var(--text2)">載入中...</p>
+    </div>
+    <div class="note-panel-actions">
+      <button class="note-action-primary" id="importNotesBtn" onclick="importNotes()" disabled>💾 加入知識庫</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// --- Note integration state (persists across overlay open/close) ---
+let collectedHighlights = [];
+let collectedAnnotations = [];
+let lastAnswerConcepts = [];
+
+// Text selection → floating "標記" button
+(function() {
+  const btn = document.createElement('button');
+  btn.textContent = '📌 標記重點';
+  btn.style.cssText = 'display:none;position:absolute;z-index:300;background:var(--accent);color:#fff;border:none;padding:6px 14px;border-radius:8px;font-size:0.8rem;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.4)';
+  document.body.appendChild(btn);
+  let pendingText = '';
+
+  document.addEventListener('mouseup', (e) => {
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed || !sel.toString().trim()) { btn.style.display = 'none'; return; }
+    const answerEl = sel.anchorNode?.parentElement?.closest?.('.answer');
+    if (!answerEl) { btn.style.display = 'none'; return; }
+
+    pendingText = sel.toString().trim();
+    if (pendingText.length < 2 || pendingText.length > 500) { btn.style.display = 'none'; return; }
+
+    // Position button near selection
+    const range = sel.getRangeAt(0);
+    const rect = range.getBoundingClientRect();
+    btn.style.display = 'block';
+    btn.style.left = (rect.left + window.scrollX) + 'px';
+    btn.style.top = (rect.top + window.scrollY - 36) + 'px';
+  });
+
+  btn.addEventListener('mousedown', (e) => {
+    e.preventDefault(); // Prevent losing selection
+  });
+
+  btn.addEventListener('click', () => {
+    if (pendingText) {
+      collectedHighlights.push(pendingText);
+      updateFabBadge();
+      pendingText = '';
+    }
+    btn.style.display = 'none';
+    window.getSelection()?.removeAllRanges();
+  });
+
+  // Hide button when clicking elsewhere
+  document.addEventListener('mousedown', (e) => {
+    if (e.target !== btn) btn.style.display = 'none';
+  });
+})();
+
+function updateFabBadge() {
+  const fab = document.getElementById('fabNotes');
+  const count = collectedHighlights.length + collectedAnnotations.length;
+  const badge = fab.querySelector('.fab-badge');
+  if (badge) badge.textContent = count > 0 ? `${count} 則` : '';
+}
+
+function openNotePanel() {
+  const overlay = document.getElementById('noteOverlay');
+  overlay.classList.add('open');
+  renderNotePanel();
+}
+
+function renderNotePanel() {
+  const body = document.getElementById('notePanelBody');
+
+  // Extract concepts from last answer
+  const answers = document.querySelectorAll('.answer');
+  const lastAnswer = answers[answers.length - 1];
+  lastAnswerConcepts = [];
+  if (lastAnswer) {
+    // Extract concept names from rendered <a class="note-link"> elements, skip Q-* question IDs
+    const seen = new Set();
+    lastAnswer.querySelectorAll('a.note-link').forEach(a => {
+      const name = a.textContent.trim();
+      if (name && !name.startsWith('Q-') && !seen.has(name)) { seen.add(name); lastAnswerConcepts.push(name); }
+    });
+  }
+
+  let html = '';
+
+  // Highlights section
+  html += '<div class="note-section from-student"><div class="note-section-label student-label">📌 已標記的重點</div>';
+  if (collectedHighlights.length > 0) {
+    html += '<ul>' + collectedHighlights.map((h, i) => {
+      const display = h.length > 80 ? h.slice(0, 80) + '...' : h;
+      return `<li style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span style="font-size:0.85rem;line-height:1.5">${esc(display)}</span><button onclick="removeHighlight(${i})" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:0.8rem;padding:2px 6px;flex-shrink:0">x</button></li>`;
+    }).join('') + '</ul>';
+  } else {
+    html += '<p style="color:var(--text2)">在回答中選取文字即可標記為重點</p>';
+  }
+  html += '</div>';
+
+  // Annotations section
+  html += '<div class="note-section from-student"><div class="note-section-label student-label">✏️ 我的註釋</div>';
+  if (collectedAnnotations.length > 0) {
+    html += collectedAnnotations.map((a, i) => `<div style="padding:6px 10px;margin:4px 0;background:var(--surface2);border-radius:6px;font-size:0.85rem;display:flex;justify-content:space-between;align-items:center"><span>${esc(a)}</span><button onclick="removeAnnotation(${i})" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:0.8rem;padding:2px 6px">x</button></div>`).join('');
+  }
+  html += `<div style="display:flex;gap:8px;margin-top:8px">
+    <input type="text" id="annotationInput" placeholder="輸入你的理解或想法..." style="flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:0.85rem" onkeydown="if(event.key==='Enter')addAnnotation()">
+    <button onclick="addAnnotation()" style="background:var(--accent);color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:0.85rem">新增</button>
+  </div>`;
+  html += '</div>';
+
+  // Related concepts
+  if (lastAnswerConcepts.length > 0) {
+    html += '<div class="note-section from-material"><div class="note-section-label material-label">📚 本次涉及概念</div>';
+    html += '<p>' + lastAnswerConcepts.map(c => `<span style="display:inline-block;background:var(--surface);border:1px solid var(--border);padding:4px 10px;border-radius:6px;font-size:0.8rem;margin:2px">${esc(c)}</span>`).join(' ') + '</p>';
+    html += '</div>';
+  }
+
+  body.innerHTML = html;
+  updateImportBtn();
+}
+
+function removeHighlight(idx) {
+  collectedHighlights.splice(idx, 1);
+  updateFabBadge();
+  renderNotePanel();
+}
+
+function removeAnnotation(idx) {
+  collectedAnnotations.splice(idx, 1);
+  updateFabBadge();
+  renderNotePanel();
+}
+
+function addAnnotation() {
+  const input = document.getElementById('annotationInput');
+  const text = input.value.trim();
+  if (!text) return;
+  collectedAnnotations.push(text);
+  updateFabBadge();
+  renderNotePanel();
+  // Re-focus input after re-render
+  setTimeout(() => document.getElementById('annotationInput')?.focus(), 0);
+}
+
+function updateImportBtn() {
+  const btn = document.getElementById('importNotesBtn');
+  btn.disabled = !(collectedHighlights.length > 0 || collectedAnnotations.length > 0);
+}
+
+async function importNotes() {
+  if (!window.Clerk?.user) { alert('請先登入'); return; }
+  const btn = document.getElementById('importNotesBtn');
+  btn.disabled = true;
+  btn.textContent = '處理中...';
+
+  try {
+    const res = await authFetch('/api/notes/import', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        highlights: collectedHighlights,
+        annotations: collectedAnnotations,
+        relatedConcepts: lastAnswerConcepts,
+      }),
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    btn.textContent = `✅ 已匯入 ${data.imported} 筆`;
+    const body = document.getElementById('notePanelBody');
+    body.innerHTML += `<div class="note-section from-ai" style="margin-top:16px">
+      <div class="note-section-label ai-label">🤖 匯入結果</div>
+      <ul>
+        <li>✅ 已掌握的知識：${data.matched} 個</li>
+        <li>📝 新增到知識庫：${data.imported} 筆</li>
+        ${data.corrections > 0 ? `<li>⚠️ 需要修正：${data.corrections} 個</li>` : ''}
+      </ul>
+      ${data.details?.corrections?.length > 0 ? '<h4 style="margin-top:12px;color:var(--yellow)">⚠️ 概念修正</h4><ul>' + data.details.corrections.map(c => `<li><strong>${esc(c.baseConcept)}</strong>：${esc(c.correction)}</li>`).join('') + '</ul>' : ''}
+    </div>`;
+    // Clear state after successful import
+    collectedHighlights = [];
+    collectedAnnotations = [];
+    updateFabBadge();
+  } catch (err) {
+    btn.textContent = '❌ 匯入失敗';
+    alert('匯入失敗：' + err.message);
+  }
+}
+</script>
+
 </body>
 </html>
