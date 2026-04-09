@@ -1,0 +1,508 @@
+{
+  "results": [
+    {
+      "id": "q01",
+      "query": "萬有引力定律",
+      "category": "A_direct_concept",
+      "relevant": [
+        "concepts/萬有引力定律.md",
+        "concepts/行星運動三大定律.md",
+        "formulas/萬有引力定律公式.md"
+      ],
+      "retrieved": [
+        "concepts/萬有引力定律.md",
+        "formulas/單擺週期公式.md",
+        "questions/q-history-scientist-matching-01.md",
+        "concepts/天文學革命.md",
+        "scientists/牛頓.md",
+        "formulas/萬有引力定律公式.md",
+        "scientists/庫侖.md",
+        "concepts/慣性.md",
+        "moc/1-1-物理學簡史-moc.md",
+        "formulas/庫侖定律公式.md"
+      ],
+      "recall_at_5": 0.3333333333333333,
+      "recall_at_10": 0.6666666666666666,
+      "elapsed_sec": 4.76
+    },
+    {
+      "id": "q02",
+      "query": "游標尺如何讀數",
+      "category": "A_direct_concept",
+      "relevant": [
+        "concepts/游標尺.md",
+        "formulas/游標尺讀數公式.md"
+      ],
+      "retrieved": [
+        "formulas/游標尺讀數公式.md",
+        "questions/q-vernier-comparison-01.md",
+        "questions/q-vernier-diameter-01.md",
+        "questions/q-vernier-39div20-01.md",
+        "concepts/測量值與誤差.md",
+        "questions/q-vernier-precision-reading-01.md",
+        "questions/q-micrometer-reading-01.md",
+        "questions/q-vernier-valid-data-01.md",
+        "moc/1-3-物理學與測量-moc.md",
+        "questions/q-micrometer-reading-02.md"
+      ],
+      "recall_at_5": 0.5,
+      "recall_at_10": 0.5,
+      "elapsed_sec": 25.27
+    },
+    {
+      "id": "q03",
+      "query": "半衰期是什麼",
+      "category": "A_direct_concept",
+      "relevant": [
+        "concepts/半衰期.md",
+        "concepts/放射性.md",
+        "formulas/半衰期公式.md"
+      ],
+      "retrieved": [
+        "questions/q-half-life-zhuangzi-01.md",
+        "formulas/半衰期公式.md",
+        "concepts/放射性.md",
+        "questions/q-half-life-graph-01.md",
+        "questions/q-half-life-formula-01.md",
+        "questions/q-half-life-daily-decay-01.md",
+        "questions/q-half-life-intensity-01.md",
+        "questions/q-half-life-carbon14-01.md",
+        "questions/q-half-life-uranium-ratio-01.md",
+        "concepts/半衰期.md"
+      ],
+      "recall_at_5": 0.6666666666666666,
+      "recall_at_10": 1.0,
+      "elapsed_sec": 55.27
+    },
+    {
+      "id": "q04",
+      "query": "光的波粒二象性",
+      "category": "A_direct_concept",
+      "relevant": [
+        "concepts/光的波粒二象性.md",
+        "concepts/光的粒子說與波動說.md",
+        "concepts/光電效應.md"
+      ],
+      "retrieved": [
+        "concepts/光的波粒二象性.md",
+        "questions/q-quantum-wave-particle-duality-02.md",
+        "scientists/愛因斯坦.md",
+        "scientists/德布羅意.md",
+        "questions/q-optics-wave-particle-duality-01.md",
+        "scientists/楊格.md",
+        "concepts/光的粒子說與波動說.md",
+        "questions/q-optics-wave-theory-proposer-01.md",
+        "moc/1-1-物理學簡史-moc.md",
+        "questions/q-optics-einstein-photon-01.md"
+      ],
+      "recall_at_5": 0.3333333333333333,
+      "recall_at_10": 0.6666666666666666,
+      "elapsed_sec": 30.83
+    },
+    {
+      "id": "q05",
+      "query": "克卜勒行星運動三大定律",
+      "category": "A_direct_concept",
+      "relevant": [
+        "concepts/萬有引力定律.md",
+        "concepts/行星運動三大定律.md",
+        "scientists/克卜勒.md"
+      ],
+      "retrieved": [
+        "questions/q-astronomy-kepler-laws-01.md",
+        "scientists/第谷.md",
+        "concepts/日心說.md",
+        "concepts/萬有引力定律.md",
+        "questions/q-history-scientist-matching-01.md",
+        "scientists/克卜勒.md",
+        "questions/q-astronomy-kepler-data-02.md",
+        "moc/1-1-物理學簡史-moc.md",
+        "questions/q-astronomy-kepler-data-01.md",
+        "concepts/行星運動三大定律.md"
+      ],
+      "recall_at_5": 0.3333333333333333,
+      "recall_at_10": 1.0,
+      "elapsed_sec": 22.31
+    },
+    {
+      "id": "q06",
+      "query": "為什麼地球會繞著太陽轉",
+      "category": "B_natural_language",
+      "relevant": [
+        "concepts/日心說.md",
+        "concepts/萬有引力定律.md",
+        "concepts/行星運動三大定律.md"
+      ],
+      "retrieved": [
+        "questions/q-solar-day-formula-01.md",
+        "concepts/日心說.md",
+        "concepts/地心說.md",
+        "questions/q-solar-day-angle-01.md",
+        "concepts/行星運動三大定律.md",
+        "concepts/時間標準.md",
+        "scientists/哥白尼.md",
+        "questions/q-astronomy-kepler-laws-01.md",
+        "scientists/托勒密.md",
+        "concepts/太陽日與恆星日.md"
+      ],
+      "recall_at_5": 0.6666666666666666,
+      "recall_at_10": 0.6666666666666666,
+      "elapsed_sec": 83.05
+    },
+    {
+      "id": "q07",
+      "query": "用什麼工具量很小的長度",
+      "category": "B_natural_language",
+      "relevant": [
+        "concepts/游標尺.md",
+        "concepts/螺旋測微器.md",
+        "formulas/游標尺讀數公式.md",
+        "formulas/螺旋測微器讀數公式.md"
+      ],
+      "retrieved": [
+        "questions/q-measurement-ruler-precision-01.md",
+        "questions/q-vernier-comparison-01.md",
+        "questions/q-vernier-39div20-02.md",
+        "questions/q-length-current-definition-01.md",
+        "concepts/測量值與誤差.md",
+        "questions/q-micrometer-multi-reading-01.md",
+        "questions/q-length-measurement-unit-01.md",
+        "questions/q-micrometer-precision-01.md",
+        "formulas/游標尺讀數公式.md",
+        "questions/q-vernier-valid-data-01.md"
+      ],
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.25,
+      "elapsed_sec": 66.65
+    },
+    {
+      "id": "q08",
+      "query": "核能發電的原理",
+      "category": "B_natural_language",
+      "relevant": [
+        "applications/核能發電應用.md",
+        "concepts/核分裂與核融合.md",
+        "concepts/核能發電.md"
+      ],
+      "retrieved": [
+        "scientists/費米.md",
+        "questions/q-nuclear-power-principle-01.md",
+        "applications/核能發電應用.md",
+        "questions/q-nuclear-formula-01.md",
+        "questions/q-nuclear-fuel-01.md",
+        "concepts/核分裂與核融合.md",
+        "concepts/核能發電.md",
+        "formulas/質能互換公式.md",
+        "moc/1-2-物理學對人類生活的影響-moc.md",
+        "questions/q-nuclear-fission-errors-01.md"
+      ],
+      "recall_at_5": 0.3333333333333333,
+      "recall_at_10": 1.0,
+      "elapsed_sec": 21.16
+    },
+    {
+      "id": "q09",
+      "query": "怎麼讓物理測量更精準",
+      "category": "B_natural_language",
+      "relevant": [
+        "concepts/有效數字.md",
+        "concepts/測量值與誤差.md",
+        "concepts/系統誤差.md",
+        "concepts/隨機誤差.md"
+      ],
+      "retrieved": [
+        "concepts/隨機誤差.md",
+        "questions/q-vernier-precision-reading-01.md",
+        "concepts/螺旋測微器.md",
+        "formulas/百分誤差公式.md",
+        "moc/1-3-物理學與測量-moc.md",
+        "formulas/游標尺讀數公式.md",
+        "concepts/絕對誤差與百分誤差.md",
+        "concepts/系統誤差.md",
+        "concepts/測量值與誤差.md",
+        "questions/q-measurement-density-error-01.md"
+      ],
+      "recall_at_5": 0.25,
+      "recall_at_10": 0.75,
+      "elapsed_sec": 61.93
+    },
+    {
+      "id": "q10",
+      "query": "光纖為什麼能傳輸訊號",
+      "category": "B_natural_language",
+      "relevant": [
+        "applications/光纖通訊應用.md",
+        "concepts/光纖通訊.md",
+        "concepts/全反射.md"
+      ],
+      "retrieved": [
+        "applications/光纖通訊應用.md",
+        "questions/q-fiber-advantages-01.md",
+        "concepts/光纖通訊.md",
+        "questions/q-fiber-advantages-02.md",
+        "questions/q-fiber-total-reflection-01.md",
+        "moc/1-2-物理學對人類生活的影響-moc.md",
+        "questions/q-fiber-total-reflection-02.md",
+        "scientists/佛科.md",
+        "concepts/光的波粒二象性.md",
+        "scientists/海更士.md"
+      ],
+      "recall_at_5": 0.6666666666666666,
+      "recall_at_10": 0.6666666666666666,
+      "elapsed_sec": 22.69
+    },
+    {
+      "id": "q11",
+      "query": "牛頓如何從克卜勒的觀察推導出萬有引力",
+      "category": "C_cross_concept",
+      "relevant": [
+        "concepts/萬有引力定律.md",
+        "concepts/行星運動三大定律.md",
+        "scientists/克卜勒.md",
+        "scientists/牛頓.md"
+      ],
+      "retrieved": [
+        "scientists/克卜勒.md",
+        "scientists/牛頓.md",
+        "concepts/行星運動三大定律.md",
+        "questions/q-history-scientist-matching-01.md",
+        "questions/q-astronomy-kepler-data-01.md",
+        "formulas/萬有引力定律公式.md",
+        "concepts/萬有引力定律.md",
+        "questions/q-astronomy-kepler-data-02.md",
+        "questions/q-history-newton-giants-01.md",
+        "questions/q-si-gravitational-constant-unit-01.md"
+      ],
+      "recall_at_5": 0.75,
+      "recall_at_10": 1.0,
+      "elapsed_sec": 58.67
+    },
+    {
+      "id": "q12",
+      "query": "古典物理學跟近代物理學的差別",
+      "category": "C_cross_concept",
+      "relevant": [
+        "concepts/古典物理學.md",
+        "concepts/物理學的發展.md",
+        "concepts/相對論.md",
+        "concepts/近代物理學.md",
+        "concepts/量子論.md"
+      ],
+      "retrieved": [
+        "concepts/古典物理學.md",
+        "questions/q-modern-physics-scope-01.md",
+        "concepts/量子論.md",
+        "questions/q-history-classical-physics-01.md",
+        "questions/q-modern-physics-development-01.md",
+        "concepts/近代物理學.md",
+        "scientists/卜朗克.md",
+        "concepts/自然哲學與四元論.md",
+        "concepts/物理學的發展.md",
+        "scientists/牛頓.md"
+      ],
+      "recall_at_5": 0.4,
+      "recall_at_10": 0.8,
+      "elapsed_sec": 18.77
+    },
+    {
+      "id": "q13",
+      "query": "原子模型從湯木生到波耳的演變",
+      "category": "C_cross_concept",
+      "relevant": [
+        "concepts/原子模型演進.md",
+        "scientists/拉塞福.md",
+        "scientists/波耳.md",
+        "scientists/湯木生.md"
+      ],
+      "retrieved": [
+        "scientists/波耳.md",
+        "scientists/拉塞福.md",
+        "scientists/湯木生.md",
+        "moc/1-1-物理學簡史-moc.md",
+        "questions/q-atomic-radiation-types-01.md",
+        "questions/q-atomic-mass-number-01.md",
+        "scientists/高斯密特與烏倫貝克.md",
+        "questions/q-atomic-particle-discovery-order-01.md",
+        "questions/q-atomic-democritus-01.md",
+        "concepts/原子模型演進.md"
+      ],
+      "recall_at_5": 0.75,
+      "recall_at_10": 1.0,
+      "elapsed_sec": 63.6
+    },
+    {
+      "id": "q14",
+      "query": "半導體在電子工業的應用",
+      "category": "C_cross_concept",
+      "relevant": [
+        "applications/半導體與電子工業.md",
+        "concepts/半導體.md",
+        "concepts/積體電路.md"
+      ],
+      "retrieved": [
+        "applications/半導體與電子工業.md",
+        "concepts/半導體.md",
+        "moc/1-2-物理學對人類生活的影響-moc.md",
+        "questions/q-semiconductor-transistor-revolution-01.md",
+        "concepts/積體電路.md",
+        "questions/q-semiconductor-not-20th-century-01.md",
+        "questions/q-semiconductor-properties-01.md",
+        "questions/q-semiconductor-ic-trend-01.md",
+        "questions/q-semiconductor-ic-abbrev-01.md",
+        "questions/q-semiconductor-impact-01.md"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "elapsed_sec": 47.94
+    },
+    {
+      "id": "q15",
+      "query": "從地心說到日心說的天文學革命",
+      "category": "C_cross_concept",
+      "relevant": [
+        "concepts/地心說.md",
+        "concepts/天文學革命.md",
+        "concepts/日心說.md",
+        "scientists/哥白尼.md"
+      ],
+      "retrieved": [
+        "scientists/哥白尼.md",
+        "scientists/托勒密.md",
+        "questions/q-astronomy-kepler-data-01.md",
+        "scientists/伽利略.md",
+        "scientists/克卜勒.md",
+        "moc/1-1-物理學簡史-moc.md",
+        "concepts/地心說.md",
+        "questions/q-astronomy-kepler-laws-01.md",
+        "scientists/第谷.md",
+        "concepts/天文學革命.md"
+      ],
+      "recall_at_5": 0.25,
+      "recall_at_10": 0.75,
+      "elapsed_sec": 40.16
+    },
+    {
+      "id": "q16",
+      "query": "牛頓",
+      "category": "D_keyword",
+      "relevant": [
+        "concepts/慣性.md",
+        "concepts/萬有引力定律.md",
+        "scientists/牛頓.md"
+      ],
+      "retrieved": [
+        "scientists/牛頓.md",
+        "scientists/克卜勒.md",
+        "questions/q-si-gravitational-constant-unit-01.md",
+        "formulas/萬有引力定律公式.md",
+        "concepts/萬有引力定律.md",
+        "questions/q-modern-physics-chronology-01.md",
+        "scientists/海更士.md",
+        "questions/q-history-scientist-matching-01.md",
+        "questions/q-optics-foucault-01.md",
+        "concepts/光的粒子說與波動說.md"
+      ],
+      "recall_at_5": 0.6666666666666666,
+      "recall_at_10": 0.6666666666666666,
+      "elapsed_sec": 4.1
+    },
+    {
+      "id": "q17",
+      "query": "庫侖",
+      "category": "D_keyword",
+      "relevant": [
+        "formulas/庫侖定律公式.md",
+        "scientists/庫侖.md"
+      ],
+      "retrieved": [
+        "formulas/庫侖定律公式.md",
+        "questions/q-electromagnetism-coulomb-inverse-01.md",
+        "questions/q-history-newton-giants-01.md",
+        "questions/q-thermodynamics-joule-01.md",
+        "scientists/庫侖.md",
+        "questions/q-si-not-basic-01.md",
+        "concepts/電磁波.md",
+        "concepts/古典物理學.md",
+        "known-missing-links.md",
+        "questions/q-optics-history-development-01.md"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "elapsed_sec": 72.43
+    },
+    {
+      "id": "q18",
+      "query": "雷射",
+      "category": "D_keyword",
+      "relevant": [
+        "applications/雷射應用.md",
+        "concepts/雷射.md"
+      ],
+      "retrieved": [
+        "applications/雷射應用.md",
+        "questions/q-laser-not-application-01.md",
+        "scientists/梅曼.md",
+        "moc/1-2-物理學對人類生活的影響-moc.md",
+        "questions/q-optics-history-development-01.md",
+        "questions/q-semiconductor-impact-01.md",
+        "questions/q-semiconductor-not-20th-century-01.md",
+        "concepts/近代物理學.md",
+        "questions/q-laser-incorrect-01.md",
+        "moc/ch1-物理學與人類生活-moc.md"
+      ],
+      "recall_at_5": 0.5,
+      "recall_at_10": 0.5,
+      "elapsed_sec": 32.2
+    },
+    {
+      "id": "q19",
+      "query": "夸克和強作用力的關係",
+      "category": "E_edge_case",
+      "relevant": [
+        "concepts/夸克理論.md",
+        "concepts/強作用力.md"
+      ],
+      "retrieved": [
+        "scientists/湯川秀樹.md",
+        "scientists/蓋耳曼.md",
+        "concepts/強作用力.md",
+        "concepts/夸克理論.md",
+        "questions/q-quantum-quark-01.md",
+        "scientists/海森伯.md",
+        "formulas/庫侖定律公式.md",
+        "questions/q-solar-day-relation-01.md",
+        "questions/q-electromagnetism-coulomb-inverse-01.md",
+        "questions/q-solar-day-formula-01.md"
+      ],
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "elapsed_sec": 30.0
+    },
+    {
+      "id": "q20",
+      "query": "質量這個物理量",
+      "category": "E_edge_case",
+      "relevant": [
+        "concepts/si七大基本量.md",
+        "concepts/質量.md",
+        "formulas/密度公式.md"
+      ],
+      "retrieved": [
+        "questions/q-mass-definition-01.md",
+        "concepts/物理量的數與量.md",
+        "concepts/質量.md",
+        "questions/q-si-man-made-standard-01.md",
+        "questions/q-mass-triple-beam-precision-01.md",
+        "questions/q-mass-hydrogen-atom-01.md",
+        "concepts/si七大基本量.md",
+        "questions/q-mass-earth-atoms-01.md",
+        "questions/q-misc-volume-mass-ratio-01.md",
+        "questions/q-si-standard-conditions-01.md"
+      ],
+      "recall_at_5": 0.3333333333333333,
+      "recall_at_10": 0.6666666666666666,
+      "elapsed_sec": 36.58
+    }
+  ],
+  "failures": []
+}

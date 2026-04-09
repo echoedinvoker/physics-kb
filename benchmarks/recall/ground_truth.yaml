@@ -1,0 +1,199 @@
+# Physics KB Recall Benchmark — Ground Truth Dataset
+# Created: 2026-04-07
+# Corpus: 342 markdown notes (高一物理 Ch1: 物理學簡史 + 測量 + 應用)
+# Labeling principle: conservative — only clearly relevant docs
+# Path format: relative to ~/Documents/physics-kb/notes/, lowercase (matches qmd JSON output)
+# Note: qmd lowercases question filenames; concept/scientist/formula filenames are 中文 so case is irrelevant
+
+# === Category A: 直接命名概念 (5 queries) ===
+
+- id: q01
+  query: "萬有引力定律"
+  category: A_direct_concept
+  relevant:
+    - concepts/萬有引力定律.md
+    - formulas/萬有引力定律公式.md
+    - concepts/行星運動三大定律.md
+  notes: "概念 + 公式 + 推導源"
+
+- id: q02
+  query: "游標尺如何讀數"
+  category: A_direct_concept
+  relevant:
+    - concepts/游標尺.md
+    - formulas/游標尺讀數公式.md
+  notes: "工具使用法"
+
+- id: q03
+  query: "半衰期是什麼"
+  category: A_direct_concept
+  relevant:
+    - concepts/半衰期.md
+    - formulas/半衰期公式.md
+    - concepts/放射性.md
+  notes: "概念 + 公式 + 上位概念"
+
+- id: q04
+  query: "光的波粒二象性"
+  category: A_direct_concept
+  relevant:
+    - concepts/光的波粒二象性.md
+    - concepts/光電效應.md
+    - concepts/光的粒子說與波動說.md
+  notes: "核心概念 + 證據 + 歷史脈絡"
+
+- id: q05
+  query: "克卜勒行星運動三大定律"
+  category: A_direct_concept
+  relevant:
+    - concepts/行星運動三大定律.md
+    - scientists/克卜勒.md
+    - concepts/萬有引力定律.md
+  notes: "概念 + 提出者 + 後續推導"
+
+# === Category B: 自然語言描述 (5 queries) — 語意理解 ===
+
+- id: q06
+  query: "為什麼地球會繞著太陽轉"
+  category: B_natural_language
+  relevant:
+    - concepts/萬有引力定律.md
+    - concepts/行星運動三大定律.md
+    - concepts/日心說.md
+  notes: "問機制不問概念名"
+
+- id: q07
+  query: "用什麼工具量很小的長度"
+  category: B_natural_language
+  relevant:
+    - concepts/螺旋測微器.md
+    - concepts/游標尺.md
+    - formulas/螺旋測微器讀數公式.md
+    - formulas/游標尺讀數公式.md
+  notes: "工具用途反查"
+
+- id: q08
+  query: "核能發電的原理"
+  category: B_natural_language
+  relevant:
+    - concepts/核能發電.md
+    - concepts/核分裂與核融合.md
+    - applications/核能發電應用.md
+  notes: "原理 + 機制 + 應用"
+
+- id: q09
+  query: "怎麼讓物理測量更精準"
+  category: B_natural_language
+  relevant:
+    - concepts/測量值與誤差.md
+    - concepts/系統誤差.md
+    - concepts/隨機誤差.md
+    - concepts/有效數字.md
+  notes: "目標反查方法"
+
+- id: q10
+  query: "光纖為什麼能傳輸訊號"
+  category: B_natural_language
+  relevant:
+    - concepts/光纖通訊.md
+    - concepts/全反射.md
+    - applications/光纖通訊應用.md
+  notes: "現象 + 物理基礎 + 應用"
+
+# === Category C: 跨概念組合 (5 queries) — 多筆相關 ===
+
+- id: q11
+  query: "牛頓如何從克卜勒的觀察推導出萬有引力"
+  category: C_cross_concept
+  relevant:
+    - scientists/牛頓.md
+    - scientists/克卜勒.md
+    - concepts/萬有引力定律.md
+    - concepts/行星運動三大定律.md
+  notes: "人物 + 人物 + 兩個關聯概念"
+
+- id: q12
+  query: "古典物理學跟近代物理學的差別"
+  category: C_cross_concept
+  relevant:
+    - concepts/古典物理學.md
+    - concepts/近代物理學.md
+    - concepts/相對論.md
+    - concepts/量子論.md
+    - concepts/物理學的發展.md
+  notes: "對比型，需要同時撈到兩端 + 代表理論"
+
+- id: q13
+  query: "原子模型從湯木生到波耳的演變"
+  category: C_cross_concept
+  relevant:
+    - concepts/原子模型演進.md
+    - scientists/湯木生.md
+    - scientists/拉塞福.md
+    - scientists/波耳.md
+  notes: "歷史演進 + 三位代表科學家"
+
+- id: q14
+  query: "半導體在電子工業的應用"
+  category: C_cross_concept
+  relevant:
+    - concepts/半導體.md
+    - applications/半導體與電子工業.md
+    - concepts/積體電路.md
+  notes: "材料 + 應用 + 衍生技術"
+
+- id: q15
+  query: "從地心說到日心說的天文學革命"
+  category: C_cross_concept
+  relevant:
+    - concepts/地心說.md
+    - concepts/日心說.md
+    - concepts/天文學革命.md
+    - scientists/哥白尼.md
+  notes: "歷史轉變 + 關鍵人物"
+
+# === Category D: 中文 keyword 為主 (3 queries) — 測 BM25 失效情境 ===
+
+- id: q16
+  query: "牛頓"
+  category: D_keyword
+  relevant:
+    - scientists/牛頓.md
+    - concepts/萬有引力定律.md
+    - concepts/慣性.md
+  notes: "單一人名，最 keyword-friendly"
+
+- id: q17
+  query: "庫侖"
+  category: D_keyword
+  relevant:
+    - scientists/庫侖.md
+    - formulas/庫侖定律公式.md
+  notes: "人名 + 同名定律"
+
+- id: q18
+  query: "雷射"
+  category: D_keyword
+  relevant:
+    - concepts/雷射.md
+    - applications/雷射應用.md
+  notes: "技術名 + 應用"
+
+# === Category E: 冷僻 / 邊界 (2 queries) — 壓力測試 ===
+
+- id: q19
+  query: "夸克和強作用力的關係"
+  category: E_edge_case
+  relevant:
+    - concepts/夸克理論.md
+    - concepts/強作用力.md
+  notes: "高一範圍邊緣，期望能撈到但 baseline 可能漏"
+
+- id: q20
+  query: "質量這個物理量"
+  category: E_edge_case
+  relevant:
+    - concepts/質量.md
+    - concepts/SI七大基本量.md
+    - formulas/密度公式.md
+  notes: "抽象詞 + SI 上位 + 直接應用公式"
